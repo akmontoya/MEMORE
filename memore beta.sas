@@ -221,7 +221,7 @@ if (criterr=0) then;do; *1;
 	end;
 
 	if (mc = 1) then;do;
-      asamp=rndna[,i]+aresmat[i,1];
+      asamp=rndna[,i]*aresmat[i,2]+aresmat[i,1];
 	  bsamp=rndnb[,i]+bresmat[i,1];
 	  absamp=asamp#bsamp;
       mcgrad=rank(absamp);

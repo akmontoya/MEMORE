@@ -287,7 +287,7 @@ LOOP i = 1 TO Mpairs.
 
    /*Monte Carlo Confidence Interval*/
    DO IF (mc = 1). 
-   COMPUTE asamp = rndna(:,i)+aresmat(i,1). 
+   COMPUTE asamp = rndna(:,i)*aresmat(i,2)+aresmat(i,1). 
    COMPUTE bsamp = rndnb(:,i)+bresmat(i,1). 
    COMPUTE absamp = asamp&*bsamp. 
    COMPUTE mcgrad = grade(absamp). 
