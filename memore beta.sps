@@ -54,12 +54,12 @@ compute toutput = sqrt(!df*(exp((!df-(5/6))*(xp**2)/(!df-(2/3)+.1/!df)**2)-1)).
 
 DEFINE MEMORE (Y = !charend('/') /M = !charend('/') /Conf = !charend('/') !default(95) /mc = !charend('/') !default(0) 
    /samples = !charend('/') !default(5000) /normal = !charend('/') !default(0) /bc = !charend('/') !default(0) /decimals=!charend('/') !default(F10.4) /save = !charend('/') !default(0)
-   /seed = !charend('/') !default(random) /contrast = !charend('/') !default(0)). 
+   /seed = !charend('/') !default(random) /contrast = !charend('/') !default(0) /serial = !charend('/') !default(0)). 
 set mxloop = 100000000.
 set seed = !seed. 
    
 matrix. 
-COMPUTE runnotes = MAKE(11,1,0). 
+COMPUTE runnotes = MAKE(14,1,0). 
 COMPUTE criterr = 0.  
 GET data/ Variables = !M !Y / Names = namevec /missing = OMIT. 
 GET mdat / variables = !M / names = mnames /missing = OMIT. 
@@ -68,6 +68,7 @@ GET fulldat / Variables = !M !Y /missing = 999.
 COMPUTE missing = nrow(fulldat) - nrow(data). 
 
 COMPUTE mc = (!mc=1). 
+COMPUTE serial = (!serial = 1). 
 
 !let !toomany=0.
 !do !i !in (!M).
@@ -111,6 +112,11 @@ LOOP i = 1 TO Mcount.
 END LOOP. 
 END IF. 
 
+DO IF ((serial = 1) AND (mc = 1)). 
+   COMPUTE runnotes(12,1) = 12. 
+   COMPUTE mc = 0. 
+END IF. 
+
 COMPUTE zero = MAKE (nrow(data),1,0). 
 LOOP i = 1 TO (ncol(data)-1) BY 2. 
    COMPUTE diff = data(:,i) - data(:,i+1). 
@@ -129,7 +135,7 @@ DO IF (!samples = 0).
    COMPUTE samples = 5000. 
    COMPUTE mc = 1. 
 ELSE. 
-   COMPUTE samples = abs(trunc(!samples))*(abs(trunc(!samples)) >= 1000) + 5000*(abs(trunc(!samples)) < 1000). 
+COMPUTE samples = abs(trunc(!samples))*(abs(trunc(!samples)) >= 1000) + 5000*(abs(trunc(!samples)) < 1000). 
 END IF. 
 DO IF (samples <> !samples). 
 			COMPUTE runnotes(3, 1) = 3. 
@@ -149,6 +155,11 @@ END IF.
 
 DO IF (!contrast = 1 AND (Mcount/2) =1). 
    COMPUTE runnotes(10,1) = 10. 
+END IF. 
+
+DO IF (serial = 1 AND ((Mcount >4)OR (Mcount <4))). 
+   COMPUTE runnotes(13,1) = 13.
+   COMPUTE criterr = 1. 
 END IF. 
 
 DO IF (criterr = 0). 
@@ -193,6 +204,36 @@ COMPUTE lcic = cpath-tcritc*seYdiff.
 COMPUTE ucic = cpath+tcritc*seYdiff. 
 COMPUTE cresmat = {cpath, seYdiff, tcpath, dfcpath, pcpath, lcic, ucic}. 
 
+DO IF (serial = 1). 
+   COMPUTE serres = make(3, 7, 0). 
+   COMPUTE serdes = {make(N,1,1), dataT(:, 1:(ncol(dataT)-4))}. 
+   COMPUTE M2modbs = inv(t(serdes)*serdes)*t(serdes)*dataT(:,(ncol(dataT)-3)). 
+   COMPUTE M2pred = serdes*m2modbs. 
+   COMPUTE M2ssr = csum((dataT(:,ncol(dataT)-3)-M2pred)&**2). 
+   COMPUTE M2sst = csum((dataT(:,(ncol(dataT)-3)) - csum(dataT(:,(ncol(dataT)-3)))/N)&**2). 
+   COMPUTE M2Rsq = 1-M2ssr/m2sst. 
+   COMPUTE M2r = sqrt(M2Rsq).    
+   COMPUTE M2msr = M2ssr/(N - ncol(serdes)). 
+   COMPUTE M2df1 = ncol(serdes) - 1. 
+   COMPUTE M2df2 = (N - ncol(serdes)). 
+   COMPUTE M2F = m2df2*m2rsq/(m2df1*(1-m2rsq)). 
+   COMPUTE M2p = 1-FCDF(M2F, M2df1, m2df2). 
+   COMPUTE sem2bmat = (m2msr*inv(t(serdes)*serdes)). 
+   COMPUTE sem2b = (diag(sem2bmat))&**(1/2). 
+   COMPUTE m2modsum = {M2r, m2rsq, m2msr, m2F, m2df1, m2df2, m2p}. 
+   
+   CDFINVT p = temp /df = M2df2. 
+   COMPUTE sercritt = toutput. 
+   COMPUTE serres(1:3,1) = M2modbs. 
+   COMPUTE serres(1:3, 2) = sem2b. 
+   COMPUTE serres(1:3, 3) = serres(1:3, 1) &/ serres(1:3, 2). 
+   COMPUTE serres(1:3, 4) = make(3,1, m2df2). 
+   COMPUTE serres(1:3, 5) = 2*(1-tcdf(abs(serres(1:3,3)), m2df2)). 
+   COMPUTE serres(1:3,6) = serres(1:3, 1) - sercritt*serres(1:3,2). 
+   COMPUTE serres(1:3, 7) = serres(1:3, 1) + sercritt*serres(1:3,2). 
+   COMPUTE aresmat(2,:) = serres(1,:). 
+END IF. 
+
 COMPUTE bcpdes = {make(N,1,1), dataT(:,1:(ncol(dataT)-2))}.
 COMPUTE bcpvec = inv(t(bcpdes)*bcpdes)*t(bcpdes)*dataT(:,(ncol(dataT)-1)).
 COMPUTE ypred = bcpdes*bcpvec. 
@@ -206,11 +247,11 @@ COMPUTE df2 = (N - ncol(bcpdes)).
 COMPUTE Ffull = df2*Rsqfull/((df1)*(1-rsqfull)). 
 COMPUTE pfull =1- FCDF(Ffull, df1, df2). 
 COMPUTE sebcpmat = (msr*inv(t(bcpdes)*bcpdes)). 
-COMPUTE sebcp = (diag(msr*inv(t(bcpdes)*bcpdes)))&**(1/2). 
+COMPUTE sebcp = (diag(sebcpmat))&**(1/2). 
 
 COMPUTE bresmat = MAKE(Mpairs, 7, 0). 
 COMPUTE dresmat = MAKE(Mpairs, 7, 0). 
-COMPUTE indres = MAKE(Mpairs+1,1,0). 
+COMPUTE indres = MAKE(Mpairs+1+(serial=1),1,0). 
 DO IF (!normal = 1). 
    COMPUTE normres = MAKE(Mpairs, 4, 0). 
 END IF. 
@@ -279,7 +320,7 @@ LOOP i = 1 TO Mpairs.
    COMPUTE indirect = aresmat(i,1)*bresmat(i,1). 
    COMPUTE indres(i,1) = indirect.  
    DO IF (!normal = 1). 
-      COMPUTE sobseab = sqrt(aresmat(i,1)**2*bresmat(i,2)**2+bresmat(i,1)**2*aresmat(i,2)**2). 
+      COMPUTE sobseab = sqrt((aresmat(i,1)**2)*(bresmat(i,2)**2)+(bresmat(i,1)**2)*(aresmat(i,2)**2)). 
       COMPUTE sobelZ = indirect/sobseab.
       COMPUTE sobelp = 2*cdfnorm((-1)*abs(sobelZ)). 
       COMPUTE normres(i,:) = {indirect, sobseab, sobelZ, sobelp}. 
@@ -287,7 +328,7 @@ LOOP i = 1 TO Mpairs.
 
    /*Monte Carlo Confidence Interval*/
    DO IF (mc = 1). 
-   COMPUTE asamp = rndna(:,i)+aresmat(i,1). 
+   COMPUTE asamp = rndna(:,i)*aresmat(i,2)+aresmat(i,1). 
    COMPUTE bsamp = rndnb(:,i)+bresmat(i,1). 
    COMPUTE absamp = asamp&*bsamp. 
    COMPUTE mcgrad = grade(absamp). 
@@ -302,6 +343,20 @@ LOOP i = 1 TO Mpairs.
    END IF. 
 
 END LOOP. 
+ 
+/*serial mediation indirect paths*/
+DO IF (serial = 1).
+   COMPUTE indres(mpairs+1, 1) = aresmat(1,1)*serres(2,1)*bresmat(2,1).
+   DO IF (!normal = 1)). 
+   COMPUTE indirect = aresmat(1,1)*serres(2,1)*bresmat(2,1). 
+   COMPUTE sobseab = sqrt((aresmat(1,1)**2)*(serres(2,1)**2)*(bresmat(2,2)**2)+(aresmat(1,1)**2)*(bresmat(2,1)**2)*(serres(2,2)**2)+(serres(2,1)**2)*(bresmat(2,1)**2)*(aresmat(2,1)**2)). 
+   COMPUTE sobelZ = indirect/sobseab. 
+   COMPUTE sobelp = 2*cdfnorm((-1)*abs(sobelZ)). 
+   COMPUTE serind = {indirect, sobseab, sobelZ, sobelp}. 
+   COMPUTE normres = {normres; serind}.
+
+   END IF. 
+END IF. 
 
 /*Total monte carlo*/
 DO IF (mc = 1). 
@@ -335,12 +390,15 @@ DO IF ((!contrast = 1) AND (Mpairs >1)).
 END IF.
 END IF. 
 
+COMPUTE badboot = 0. 
    /*Bootstrapping*/
 DO IF (mc <> 1). 
-   COMPUTE Bootsamp = make(samples, Mpairs+1, 0). 
-   COMPUTE Bootsave = make(samples, 3*Mpairs+3,0). 
-   COMPUTE indtemp = make(samples,Mpairs,0).
-   LOOP i = 1 TO samples. 
+   COMPUTE detcheck = make(((Mpairs-1)*(serial=1) +1), 1, -999). 
+   COMPUTE Bootsamp = make(samples, Mpairs+1+(serial=1), 0). 
+   COMPUTE Bootsave = make(samples, 3*Mpairs+3+2*(serial=1),0). 
+   COMPUTE indtemp = make(samples,Mpairs+(serial=1),0).
+   LOOP i = 1 TO samples.
+      LOOP k = 1 TO 10000.  
       COMPUTE sortvar = trunc(uniform(N,1)*N)+1.
       COMPUTE bootdat = dataT(sortvar(:,1),:). 
       LOOP j = 1 TO Mpairs. 
@@ -348,25 +406,53 @@ DO IF (mc <> 1).
       COMPUTE bootdat(:,2*j) = (bootdat(:,2*j) - summean).
       END LOOP.
       COMPUTE bootdes = {make(N,1,1), bootdat(:,1:(ncol(bootdat)-2))}. 
+      COMPUTE detcheck(1,1) = (det(t(bootdes)*bootdes)=0).
+      DO IF (serial = 1).
+      LOOP j = 2 TO Mpairs. 
+         COMPUTE bootadat = bootdes(:,1:(2*j-1)). 
+         COMPUTE detcheck(j,1) = (det(t(bootadat)*bootadat)=0). 
+      END LOOP. 
+      END IF. 
+      COMPUTE badboot = badboot+(k = 2). 
+      END LOOP IF (csum(detcheck(:,1)) = 0). 
+      
       COMPUTE bootbeta = inv(t(bootdes)*bootdes)*t(bootdes)*bootdat(:,(ncol(bootdat)-1)). 
       LOOP j = 1 TO Mpairs. 
       COMPUTE boota = inv(t(ghostdes)*ghostdes)*t(ghostdes)*bootdat(:,(2*j-1)).
       COMPUTE bootb = bootbeta(2*j,1).
+
+      DO IF ((serial = 1)AND(j>1)).
+         COMPUTE bootadat = bootdes(:,1:(2*j-1)). 
+         COMPUTE bootserb = inv(t(bootadat)*bootadat)*t(bootadat)*bootdes(:,2*j). 
+         COMPUTE boota = bootserb(1,1). 
+         COMPUTE bootd = bootserb(2,1). 
+         COMPUTE bootsamp(i,j+1) = bootsave(i,1)*bootd*bootb. 
+         COMPUTE bootsave(i,3*j+2) = bootsave(i,1)*bootd*bootb.
+         COMPUTE bootsave(i,3*j+1) = bootd. 
+         COMPUTE indtemp (i,j+1) = bootsave(i,1)*bootd*bootb.
+      END IF. 
+
       COMPUTE bootsamp(i,j) = bootb*boota. 
       COMPUTE bootsave(i,(3*j-2):(3*j)) = {boota, bootb, boota*bootb}. 
       COMPUTE indtemp(i,j) = (boota*bootb). 
       END LOOP. 
-      COMPUTE bootsave(i,3*Mpairs+2) = bootbeta(1,1). 
-      COMPUTE bootsave(i,3*Mpairs+3) = rsum(indtemp(i,:))+bootbeta(1,1). 
+      COMPUTE bootsave(i,ncol(bootsave)-1) = bootbeta(1,1). 
+      COMPUTE bootsave(i,ncol(bootsave)) = rsum(indtemp(i,:))+bootbeta(1,1). 
    END LOOP. 
 
+   DO IF (badboot >0). 
+      COMPUTE runnotes(14,1) = 14. 
+   END IF. 
+      
+
+
    DO IF ((!contrast = 1) AND (Mpairs >1)). 
-      COMPUTE npairs = Mpairs*(Mpairs-1)/2. 
+      COMPUTE npairs = ncol(indtemp)*(ncol(indtemp)-1)/2. 
       COMPUTE contres = MAKE(npairs, 4,0). 
       COMPUTE contsamp = MAKE(samples, npairs, 0). 
       COMPUTE counter = 1. 
-      LOOP i = 1 TO Mpairs-1. 
-         LOOP j = i+1 TO Mpairs. 
+      LOOP i = 1 TO ncol(indtemp)-1. 
+         LOOP j = i+1 TO ncol(indtemp). 
          COMPUTE contsamp(:,counter) = indtemp(:,i) - indtemp(:,j). 
          COMPUTE contres(counter, 1) = indres(i,1) - indres(j,1). 
          COMPUTE counter = counter+1. 
@@ -374,12 +460,13 @@ DO IF (mc <> 1).
       END LOOP. 
    END IF. 
 
-   COMPUTE bootsamp(:,Mpairs+1) = rsum(bootsamp(:,1:Mpairs)).
-   COMPUTE bootsave(:,3*Mpairs+1) =  rsum(bootsamp(:,1:Mpairs)).
-   COMPUTE indres(Mpairs+1,1) = csum(indres). 
+   COMPUTE bootsamp(:,ncol(bootsamp)) = rsum(bootsamp(:,1:(ncol(bootsamp)-1))).
+   COMPUTE bootsave(:,(ncol(bootsave)-2)) =  rsum(bootsamp(:,1:(ncol(bootsamp)-1))).
+
+   COMPUTE indres(nrow(indres),1) = csum(indres). 
    COMPUTE bootsort = bootsamp. 
-   COMPUTE seboots = MAKE(Mpairs+1, 1, 0). 
-   COMPUTE bccires = MAKE(4,Mpairs+1, 0). 
+   COMPUTE seboots = MAKE(Mpairs+1+(serial=1), 1, 0). 
+   COMPUTE bccires = MAKE(4,Mpairs+1+(serial=1), 0). 
    COMPUTE BootLLCI = MAKE(1,ncol(bootsamp),0). 
    COMPUTE BootULCI = MAKE(1,ncol(bootsamp),0). 
    COMPUTE zalpha2 = sqrt(-2*ln(alpha/2)).
@@ -494,36 +581,44 @@ print N /title = "Sample Size:".
 do if (!quote(!seed) <> "random"). 
 print !seed /title = "Seed:". 
 end if. 
-print /title = "********************************************************************************".
+print {"Ydiff =" , ynames(1,1), ' - ', ynames(1,2)} /title = "********************************************************************************" /rlabels = "Outcome:" /format = A8.
 COMPUTE collab = {"Effect", "SE", "t", "df", "p", "LLCI", "ULCI"}. 
-print cresmat /title = "Effect of X on Y differences" /rlabels = c /cnames = collab /format = !decimals. 
-
-print /title = "********************************************************************************".
+print cresmat /title = "Model" /rnames = {"'X'"} /cnames = collab /format = !decimals. 
 COMPUTE alabs = {"a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10"}.
-DO IF (Mpairs = 1). 
-COMPUTE pairlabs = {"a"}. 
-ELSE.  
-COMPUTE pairlabs = {alabs(1,1:(Mpairs))}. 
+LOOP j = 1 to Mpairs. 
+DO IF (serial = 1 AND j >1). 
+   BREAK. 
 END IF. 
-print aresmat /title = "Effect of X on M differences" /rnames = pairlabs /cnames = collab /format = !decimals. 
-
+DO IF (Mpairs = 1). 
+print {"Mdiff = " , mnamemat(j,1), ' - ', mnamemat(j,2)} /title = "********************************************************************************" /rlabels = "Outcome:" /format = A8.
+ELSE. 
+print {temp1(1,j) , mnamemat(j,1), ' - ', mnamemat(j,2)} /title = "********************************************************************************" /rlabels = "Outcome:" /format = A8.
+END IF. 
+print aresmat(j,:) /title = "Model" /rnames = {"'X'"} /cnames = collab /format = !decimals. 
+END LOOP. 
+DO IF (serial = 1). 
+print {"M2diff =" , mnamemat(2,1), ' - ', mnamemat(2,2)} /title = "********************************************************************************" /rlabels = "Outcome:" /format = A8.
+print m2modsum /title = "Model Summary" /clabels = "R", "R-sq", "MSE", "F" , "df1" , "df2", "p" /format = !decimals. 
+COMPUTE m2labs = {"'X'", "M1diff", "M1avg"}. 
+print serres /title "Model" /rnames = m2labs /clabels = "coeff" , "SE", "t", "df", "p", "LLCI", "ULCI" /format = !decimals.
+END IF. 
 print {"Ydiff =" , ynames(1,1), ' - ', ynames(1,2)} /title = "********************************************************************************" /rlabels = "Outcome:" /format = A8.
 COMPUTE modsumr = {Rfull, Rsqfull, MSR, Ffull, df1, df2, pfull}. 
 print modsumr /title = "Model Summary" /clabels = "R", "R-sq", "MSE", "F" , "df1" , "df2", "p" /format = !decimals. 
 
 COMPUTE modres = {cpresmat;bresmat;dresmat}. 
-COMPUTE bdlabs = {"b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9", "b10"}.
-COMPUTE bslabs = {"d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "d10"}.
+COMPUTE bdlabs = {"M1diff", "M2diff", "M3diff", "M4diff", "M5diff", "M6diff", "M7diff", "M8diff", "M9diff", "M10diff"}.
+COMPUTE bslabs = {"M1avg", "M2avg", "M3avg", "M4avg", "M5avg", "M6avg", "M7avg", "M8avg", "M9avg", "M10avg"}.
 DO IF (Mpairs = 1). 
-COMPUTE modlabs = {"c'", "b", "d"}. 
+COMPUTE modlabs = {"'X'", "Mdiff", "Mavg"}. 
 ELSE. 
-COMPUTE modlabs = {"c'", bdlabs(1, 1:Mpairs), bslabs(1, 1:Mpairs)}. 
+COMPUTE modlabs = {"'X'", bdlabs(1, 1:Mpairs), bslabs(1, 1:Mpairs)}. 
 END IF. 
 print modres /title "Model" /rnames = modlabs /clabels = "coeff" , "SE", "t", "df", "p", "LLCI", "ULCI" /format = !decimals.
 print /title = "********************** TOTAL, DIRECT, AND INDIRECT EFFECTS **********************" .
 COMPUTE collab = {"Effect", "SE", "t", "df", "p", "LLCI", "ULCI"}. 
-print cresmat /title = "Total effect of X on Y" /rlabels = "c"/ cnames = collab /format = !decimals. 
-print cpresmat /title = "Direct effect of X on Y" /rlabels = "c'" /cnames = collab /format = !decimals. 
+print cresmat /title = "Total effect of X on Y" /cnames = collab /format = !decimals. 
+print cpresmat /title = "Direct effect of X on Y" /cnames = collab /format = !decimals. 
 DO IF (mc = 1). 
 COMPUTE indlabs = {"Effect", "MCSE", "MCLLCI", "MCULCI"}. 
 COMPUTE indres = MCres. 
@@ -531,12 +626,8 @@ ELSE.
 COMPUTE indlabs = {"Effect", "BootSE", "BootLLCI", "BootULCI"}. 
 COMPUTE indres = bootres. 
 END IF. 
-DO IF Mpairs = 1. 
-COMPUTE mlab = {'ab'}. 
-ELSE. 
-COMPUTE mlab = {'a1b1', 'a2b2', 'a3b3', 'a4b4', 'a5b5', 'a6b6', 'a7b7', 'a8b8', 'a9b9', 'a10b10'}. 
-END IF. 
-COMPUTE m2lab = {mlab(1,1:Mpairs), 'Total'}. 
+COMPUTE mlab = {"Ind1", "Ind2", "Ind3", "Ind4", "Ind5", "Ind6", "Ind7", "Ind8", "Ind9", "Ind10"}. 
+COMPUTE m2lab = {mlab(1,1:(nrow(indres)-1)), 'Total'}. 
 
 DO IF (Mpairs = 1). 
 print indres(1,:) /title = "Indirect Effect of X on Y through M" /rnames = m2lab / cnames = indlabs /format = !decimals. 
@@ -548,6 +639,15 @@ DO IF (!normal = 1).
 print normres /title = "Normal Theory Tests for Indirect Effect" /rnames = mlab /clabels = "Effect", "SE", "Z", "p" /format = !decimals. 
 END IF.
 
+COMPUTE indkey = make((ncol(m2lab)-1), 7, 0). 
+LOOP i = 1 to (ncol(m2lab)-1).
+   COMPUTE indkey(i,:) = {"X" , "->", bdlabs(1,i), "->", "Ydiff", " ", " "}. 
+END LOOP. 
+DO IF (serial = 1). 
+   COMPUTE indkey(3,:) = {"X" , "->", bdlabs(1,1), "->", bdlabs(1,2), "->", "Ydiff"}. 
+END IF. 
+print indkey /title = "Indirect Key" /rnames =mlab /format = A8. 
+
 DO IF  (!contrast = 1) AND (Mpairs >1).
 COMPUTE contlab1 = {'(C1)', '(C2)', '(C3)', '(C4)', '(C5)', '(C6)', '(C7)', '(C8)', '(C9)', '(C10)'}.
 COMPUTE contlab2 = {'(C11)', '(C12)', '(C13)', '(C14)', '(C15)', '(C16)', '(C17)', '(C18)', '(C19)', '(C20)'}.
@@ -558,8 +658,8 @@ COMPUTE contlab = {contlab1, contlab2, contlab3, contlab4}.
 print contres /title = "Pairwise Contrasts Between Specific Indirect Effects" /rnames = contlab /cnames = indlabs /format = !decimals. 
 COMPUTE contkey = MAKE(npairs, 3, 0). 
 COMPUTE counter = 1. 
-LOOP i = 1 to Mpairs-1. 
-LOOP j = i+1 to Mpairs. 
+LOOP i = 1 to nrow(indres)-2. 
+LOOP j = i+1 to nrow(indres)-1. 
 COMPUTE contkey(counter,:) = {mlab(1,i), ' - ', mlab(1,j)}. 
 COMPUTE counter = counter+1. 
 END LOOP. 
@@ -569,13 +669,13 @@ END IF.
 END IF. 
 
 print /title = "************************* ANALYSIS NOTES AND WARNINGS **************************". 
-LOOP i = 1 to 11.
+LOOP i = 1 to nrow(runnotes).
    DO IF (runnotes(i,1) = 1). 
       PRINT missing /title = "NOTE: Some cases were deleted due to missing data. The number of cases was:". 
   ELSE IF (runnotes(i,1) = 2 ). 
       PRINT /title = "ERROR: Two Y variables are needed.".
 		ELSE IF (runnotes(i,1) = 3). 
-						PRINT samples /title = "NOTE: An invalid number of samples was provided. The number of samples used:". 
+						PRINT /title = "NOTE: An invalid number of samples was provided.". 
    ELSE IF (runnotes(i,1) = 4). 
    PRINT /title = "ERROR: The number of samples specified is insufficient for desired confidence.".
        PRINT /title = "       Please increase number of samples or decrease confidence." /space = 0.
@@ -597,6 +697,12 @@ LOOP i = 1 to 11.
       PRINT /title = "       No contrasts calculated." /space = 0.
    ELSE IF (runnotes(i,1) = 11). 
       PRINT /title = "ERROR: All variable names must have 8 characters or fewer.".
+   ELSE IF (runnotes(i,1) = 12). 
+      PRINT /title = "NOTE: Monte Carlo confidence intervals are not available for serial mediation". 
+   ELSE IF (runnotes(i,1) = 13). 
+      PRINT /title = "ERROR: The serial mediation model must have 2 pairs of mediators.".
+   ELSE IF (runnotes(i,1) = 14). 
+      PRINT badboot /title = "NOTE: Some bootstrap samples had to be replaced.  The number of such replacements was:".
    END IF. 
 END LOOP. 
 
@@ -618,23 +724,28 @@ LOOP j = 1 TO Mpairs.
 END LOOP. 
 print centvars /title = "The following variables were mean centered prior to analysis:" /format = A8. 
 
-COMPUTE savelab = make(1, 3*Mpairs+1,0).
+COMPUTE blabs = {"b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9", "b10"}. 
+
+COMPUTE savelab = make(1, 3*Mpairs,0).
 LOOP i = 1 to Mpairs. 
    COMPUTE savelab(1,3*i) = mlab(1,i). 
    DO IF Mpairs = 1. 
    COMPUTE savelab(1,3*i-1) = {'b'}. 
    COMPUTE savelab(1,3*1-2) = {'a'}. 
    ELSE. 
-   COMPUTE savelab(1,3*i-1) =bdlabs(1,i). 
+   COMPUTE savelab(1,3*i-1) =blabs(1,i). 
    COMPUTE savelab(1,3*i-2) = alabs(1,i). 
    END IF. 
 END LOOP. 
-COMPUTE savelab(1, 3*Mpairs+1) = {'TotalInd'}. 
 
 DO IF (mc = 1 AND !save = 1). 
+   COMPUTE savelab = {savelab, "TotalInd"}. 
    SAVE mcsave /outfile =* /names = savelab.
 ELSE IF (mc <> 1 AND !save = 1). 
-   COMPUTE savelab = {savelab, "cprime", "c"}.
+   DO IF (serial = 1 and mpairs > 1). 
+   COMPUTE savelab = {savelab, "a3", "Ind3"}.
+   END IF. 
+   COMPUTE savelab = {savelab, "TotalInd", "cprime", "c"}.
    SAVE bootsave /outfile =* /names = savelab. 
 END IF. 
 
@@ -643,3 +754,5 @@ END IF.
 end matrix. 
 !ENDDEFINE. 
 restore. 
+COMMENT BOOKMARK;LINE_NUM=346;ID=1.
+COMMENT BOOKMARK;LINE_NUM=423;ID=2.
