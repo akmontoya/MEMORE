@@ -1,4 +1,4 @@
-Copyright (c) 2015 by Amanda K. Montoya
+Copyright (c) 2016 by Amanda K. Montoya
 montoya.29@osu.edu
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to use the software in this form.  Distribution after modification is prohibited, as is its use for any commercial purpose without authorization.  
