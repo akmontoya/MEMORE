@@ -1,10 +1,10 @@
 ﻿* Encoding: UTF-8.
-/* MEMORE for SPSS Version 2.0*/.
-/* Copyright 2018 */.
+/* MEMORE for SPSS Version 2.1*/.
+/* Copyright 2019 */.
 /* by Amanda Kay Montoya */.
 /* akmontoya.com*/.
 /* Documentation available online at akmontoya.com */.
-/* or by email to akmontoya@psych.ucla.edu */.
+/* or by email to akmontoya@ucla.edu */.
 
 
 preserve. 
@@ -80,7 +80,7 @@ set mxloop = 100000000.
 set seed = !seed. 
    
 matrix. 
-COMPUTE runnotes = MAKE(23,1,0). 
+COMPUTE runnotes = MAKE(24,1,0). 
 COMPUTE criterr = 0.  
 COMPUTE model = !model. 
 COMPUTE modelmat = MAKE(3,1,1)*model. 
@@ -287,10 +287,10 @@ DO IF (!samples = 0).
    COMPUTE samples = 5000. 
    COMPUTE mc = 1. 
 ELSE. 
-COMPUTE samples = abs(trunc(!samples))*(abs(trunc(!samples)) >= 1000) + 5000*(abs(trunc(!samples)) < 1000). 
+    COMPUTE samples = abs(trunc(!samples))*(abs(trunc(!samples)) >= 1000) + 5000*(abs(trunc(!samples)) < 1000). 
 END IF. 
 DO IF (samples <> !samples). 
-			COMPUTE runnotes(3, 1) = 3. 
+    COMPUTE runnotes(3, 1) = 3. 
 END IF.
 
 COMPUTE Conf = !Conf. 
@@ -319,6 +319,10 @@ DO IF (model = 1 AND serial = 1) AND ((Mcount < 4) OR (Mcount > 10)).
    COMPUTE criterr = 1. 
 END IF. 
 
+DO IF ((model = 1) AND (center = 1)). 
+   COMPUTE runnotes(24,1) = 24.
+END IF. 
+
 
 DO IF (criterr = 0). 
 
@@ -342,10 +346,7 @@ COMPUTE N = nrow(data).
    END IF. 
 END IF. 
 
-
-
 DO IF (criterr = 0). 
-
 DO IF (model = 1). 
    COMPUTE Mpairs = Mcount/2.  
    COMPUTE mnamemat = reshape(mnames, Mpairs, 2).
@@ -400,7 +401,6 @@ ELSE IF (model = 3).
    COMPUTE data = {moddat, data(:,(ncol(data)-1):ncol(data))}.
    COMPUTE dataT = data*transmat. 
 END IF. 
-
 COMPUTE N = nrow(data).
 COMPUTE alpha = (1-.01*Conf). 
 COMPUTE temp = alpha/2. 
@@ -683,7 +683,7 @@ DO IF (model = 1).
                               COMPUTE counter = counter+1.
                          END IF. 
                         END LOOP. 
-                        *end iloop. 
+                        /*end iloop */.
                     ELSE. 
                         DO IF (((srindx3 < 4) AND (xmint = 1))OR((srindx3 < 3) AND (xmint = 0))).
                             COMPUTE bindx = 2. 
@@ -703,7 +703,7 @@ DO IF (model = 1).
                         COMPUTE counter = counter+1.
                      END IF. 
                   END LOOP. 
-                  *end hloop. 
+                  /*end hloop */. 
                ELSE. 
                DO IF (((srindx2 < 4) AND (xmint = 1))OR((srindx2 < 3) AND (xmint = 0))).
                       COMPUTE bindx = 2. 
@@ -723,11 +723,11 @@ DO IF (model = 1).
                   COMPUTE counter = counter+1.
                END IF. 
             END LOOP. 
-            *end lloop. 
+            /*end lloop*/. 
          END LOOP. 
-         *end mloop. 
+         /*end mloop*/. 
       END LOOP. 
-      *end jloop. 
+      /*end jloop*/. 
 
       DO IF (normal = 1). 
          COMPUTE serlind = indres((mpairs+1):(nrow(indres)-1)). 
@@ -845,7 +845,7 @@ DO IF (model = 1).
             COMPUTE counterj = counterj + 1. 
            END LOOP. 
 
-            *Serial loop goes here. 
+            /*Serial loop goes here*/. 
               DO IF (serial = 1). 
                COMPUTE bootsave(i, (4+2*(mpairs-1)):(3+2*(mpairs-1) + bootcol)) = t(bootser). 
                COMPUTE counter = 1. 
@@ -902,7 +902,7 @@ DO IF (model = 1).
                                      COMPUTE counter = counter+1.
                                   END IF. 
                                  END LOOP. 
-                                 *end oloop. 
+                                /*end oloop*/. 
                              ELSE. 
                                  DO IF (((srindx3 < 4) AND (xmint = 1))OR((srindx3 < 3) AND (xmint = 0))).
                                      COMPUTE bindx = 2. 
@@ -919,7 +919,7 @@ DO IF (model = 1).
                                 COMPUTE counter = counter+1.
                               END IF. 
                            END LOOP. 
-                           *end hloop. 
+                           /*end hloop*/. 
                         ELSE. 
                            DO IF (((srindx2 < 4) AND (xmint = 1))OR((srindx2 < 3) AND (xmint = 0))).
                                   COMPUTE bindx = 2. 
@@ -936,17 +936,17 @@ DO IF (model = 1).
                            COMPUTE counter = counter+1.  
                         END IF. 
                      END LOOP. 
-                     *end lloop. 
+                     /*end lloop*/. 
                   END LOOP. 
-                  *end mloop. 
+                  /*end mloop*/. 
                END LOOP. 
-               *end jloop. 
+               /*end jloop*/. 
             END IF. 
-            *serial = 1.
+            /*serial = 1*/.
 
-            *direct effect. 
+            /*direct effect*/. 
             COMPUTE bootsave(i,ncol(bootsave)-1) = bootbeta(1,1). 
-            *total effect.
+            /*total effect*/.
             COMPUTE bootsave(i,ncol(bootsave)) = rsum(indtemp(i,:))+bootbeta(1,1). 
          END LOOP. 
 
@@ -1058,6 +1058,7 @@ DO IF (model = 1).
          COMPUTE contres(:,3:4) = contCI. 
          END IF. 
 
+
 ELSE IF ((model = 2) OR (model = 3)). 
    COMPUTE wnamemat = {t(wnames), MAKE(Wcount, 1, " ")}. 
    COMPUTE modres = MAKE(ncol(bcpdes), 6, -999). 
@@ -1067,7 +1068,7 @@ ELSE IF ((model = 2) OR (model = 3)).
    COMPUTE modres(:,4) = 2*(1-tcdf(abs(modres(:,3)), df2)).
    COMPUTE modres(:,5:6) = {modres(:,1)-tcritb*modres(:,2), modres(:,1)+tcritb*modres(:,2)}. 
 
-   **Conditional effect of X on Y at values of W. 
+   /*Conditional effect of X on Y at values of W*/. 
    COMPUTE dich = MAKE(Wcount, 3, -999). 
    LOOP i = 1 to Wcount. 
       COMPUTE uniqdes = DESIGN(moddat(:,i)). 
@@ -1231,7 +1232,7 @@ ELSE IF ((model = 2) OR (model = 3)).
 
  
    
-   *Probing Effect of Ws on Y. 
+   /*Probing Effect of Ws on Y*/. 
    COMPUTE prbmsum = MAKE(2,7, -999). 
    COMPUTE prbmdres = MAKE(2*ncol(bcpdes), 6, -999). 
    LOOP i = 1 TO 2. 
@@ -1254,8 +1255,8 @@ ELSE IF ((model = 2) OR (model = 3)).
          COMPUTE prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),2) = seprb. 
          COMPUTE prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),3) = prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),1)/prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),2).  
          COMPUTE prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),4) = 2*(1-tcdf(abs(prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),3)), df2)).
-         COMPUTE prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),5:6) = {prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),1)-tcritb*prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),2), 
-                                                                                                          prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),1)+tcritb*prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),2)}. 
+         COMPUTE prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),5) = prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),1)-tcritb*prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),2).
+         COMPUTE prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),6) = prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),1)+tcritb*prbmdres((ncol(bcpdes)*(i-1)+1):(ncol(bcpdes)*i),2).
          
    END LOOP. 
 
@@ -1280,7 +1281,7 @@ ELSE IF ((model = 2) OR (model = 3)).
          COMPUTE plotdat(:,Wcount+1) = plotdes*bcpvec.
      END IF. 
 
-   *Plot of Y for each Condition by Ws. 
+   /*Plot of Y for each Condition by Ws*/. 
    COMPUTE plotdat(:,Wcount+2) = plotdes*prbmdres(1:ncol(bcpdes),1).
    COMPUTE plotdat(:,Wcount+3) = plotdes*prbmdres((ncol(bcpdes)+1):(2*ncol(bcpdes)),1).
    END IF. 
@@ -1288,8 +1289,9 @@ ELSE IF ((model = 2) OR (model = 3)).
 END IF. 
 
 END IF. 
+ 
 
-print /title = "********************* MEMORE Procedure for SPSS Version 2.Beta3 ***********************".
+print /title = "********************* MEMORE Procedure for SPSS Version 2.1 ***********************".
 print /title = "                           Written by Amanda Montoya       ".
 print /title = "                    Documentation available at akmontoya.com ".
 print /title = "**************************************************************************************".
@@ -1314,7 +1316,7 @@ END IF.
 
 DO IF (model = 1). 
       COMPUTE compname = MAKE(((1+xmint)*Mpairs+1),7, 0). 
-      COMPUTE compname(1,:) = {' ', ynames(1,1), ' - ', ynames(1,2), ' ', ' ', ' '}. 
+      COMPUTE compname(1,:) = {' ', ynames(1,1), ' - ', ynames(1,2), ' ', ' ', ' '}.
       LOOP j = 1 TO Mpairs.
          COMPUTE compname((1+j),:) ={' ', mnamemat(j,1), ' - ', mnamemat(j,2), ' ', ' ', ' '}. 
            DO IF (xmint = 1). 
@@ -1414,6 +1416,7 @@ DO IF (model = 1).
    COMPUTE bslabs = {"M1avg", "M2avg", "M3avg", "M4avg", "M5avg", "M6avg", "M7avg", "M8avg", "M9avg", "M10avg"}.
    DO IF (Mpairs = 1). 
       COMPUTE modlabs = {"'X'", "Mdiff", "Mavg"}. 
+      COMPUTE bdlabs = {"Mdiff"}. 
    ELSE. 
       COMPUTE modlabs = {"'X'", bdlabs(1, 1:Mpairs), bslabs(1, 1:Mpairs)}. 
    END IF. 
@@ -1494,17 +1497,17 @@ DO IF (model = 1).
                                          COMPUTE counter = counter+1.
                                        END IF. 
                                     END LOOP IF (j > 3). 
-                                    *end hloop. 
+                                    /*end hloop*/. 
                                  ELSE. 
                                     COMPUTE indkey(mpairs+counter,1:7) = {step2, "->", "YDiff" }. 
                                     COMPUTE counter = counter+1.
                                  END IF. 
                               END LOOP IF (j > 3). 
-                              *end lloop. 
+                              /*end lloop*/. 
                            END LOOP IF (j > 3). 
-                           *end mloop. 
+                           /*end mloop*/. 
                         END LOOP. 
-                        *end jloop. 
+                        /*end jloop*/. 
    END IF. 
    print indkey /title = "Indirect Key" /rnames =m2lab /format = A8. 
 
@@ -1643,7 +1646,7 @@ print /title = !quote(!concat(!line8, "."))/space=0.
 print /title = !quote(!concat(!line9, "."))/space=0.
 END IF. 
 
-**GRAPH/SCATTERPLOT=Y2 WITH Y1 BY J1 BY K2 (NAME) /PANEL ROWVAR=J2 COLVAR = K1.
+/*GRAPH/SCATTERPLOT=Y2 WITH Y1 BY J1 BY K2 (NAME) /PANEL ROWVAR=J2 COLVAR = K1*/.
 
 END IF. 
 
@@ -1705,6 +1708,8 @@ LOOP i = 1 to nrow(runnotes).
       PRINT /title = "ERROR: Model 1 requires at least two variable names in the M argument.".
    ELSE IF (runnotes(i,1) = 23). 
       PRINT /title = "ERROR: Invalid model number. Please select Model 1, 2, or 3.".
+   ELSE IF (runnotes(i,1) = 24). 
+      PRINT /title = "NOTE: Centering command has no effect for Model 1.".
    END IF. 
 END LOOP. 
 
@@ -1768,6 +1773,10 @@ DO IF (model = 1).
 END IF. 
 
 print conf /title = "Level of confidence for all confidence intervals in output:" /format = F10.2. 
+DO IF (((model = 2) OR (model = 3)) AND (center = 1)). 
+    COMPUTE centvars = wnames. 
+    print centvars /title = "The following variables were mean centered prior to analysis:" /format = A8. 
+END IF. 
 
 END IF. 
 
@@ -1780,5 +1789,5 @@ restore.
 COMMENT BOOKMARK;LINE_NUM=613;ID=3.
 COMMENT BOOKMARK;LINE_NUM=776;ID=2.
 COMMENT BOOKMARK;LINE_NUM=848;ID=6.
-COMMENT BOOKMARK;LINE_NUM=1371;ID=4.
-COMMENT BOOKMARK;LINE_NUM=1731;ID=5.
+COMMENT BOOKMARK;LINE_NUM=1373;ID=4.
+COMMENT BOOKMARK;LINE_NUM=1736;ID=5.
