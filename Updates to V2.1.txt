@@ -1,0 +1,7 @@
+Updates and Changes to MEMORE Version 2.1
+
+- SPSS Dialogue: An error in the calculation of the standard error of the total effect was fixed. If you used MEMORE V2.0 SPSS dialogue box, please rerun analyses for accurate total effect standard errors. 
+- SPSS Dialogue: An error which generated an error message regarding "prbmdres" was fixed. Error does not impact output, no reanalysis required. 
+- SPSS Syntax & Dialogue: Commenting system changed to be more compatible with Mac
+- ALL: Added error message if Center = 1 and Model = 1, as centering does not apply to mediation models. 
+- Templates: Model templates for moderation models changed to "W" instead of "M".

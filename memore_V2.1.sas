@@ -1,6 +1,6 @@
 
 
-* MEMORE for SAS Version 2.0;
+* MEMORE for SAS Version 2.1;
 * Copyright 2018;
 * by Amanda K. Montoya and Andrew F Hayes;
 * Documentation available online at www.akmontoya.com;
@@ -41,7 +41,7 @@ toutput=sqrt(&df*(exp((&df-(5/6))*(xp##2)/(&df-(2/3)+.11/&df)##2)-1));
   wmodval1 = 999.99, wmodval2 = 999.99, wmodval3 = 999.99, model = 1);
 options pagesize=32767;
 proc iml;
-runnotes=j(23,1,0);
+runnotes=j(24,1,0);
 criterr=0;
 model = &model; 
 modelmat = j(3,1,1)*model; 
@@ -211,6 +211,10 @@ if (((mcount < 4) | (mcount > 10)) & (model = 1) & (serial = 1)) then; do;
 	criterr = 1;
 end;
 
+if ((model = 1)&(center = 1)) then; do;
+	runnotes[24,1] = 24;
+end;
+
 savboot=0;
 if ((saveboot ^= "xxx") & (samples > 0)) then;do;savboot=1;
 end;
@@ -268,8 +272,15 @@ if (criterr=0) then;do; *1;
   if (model = 3) then;do;
     mpairs = 0;
 	moddat = data[,1:wcount];
+	tempvec = J(wcount,1,0);
+	temp2 = {1, -1};
+	tempvec = tempvec // temp2;
+	transmat = (I(wcount)//J(2, wcount,0)) ||tempvec;
+	datat = data*transmat;
 	if (center = 1) then; do;
 		centmean = diag(moddat[+,]/n);
+		datat[,1:wcount] = datat[,1:wcount] - J(n, wcount, 1)*centmean;
+		moddat = datat[,1:wcount];
 	end;
 	if (wcount > 1) then; do;
 		do h = 1 to (wcount - 1);
@@ -1082,7 +1093,7 @@ end; *4;
 	
 end; *1;
 
-print "************************ MEMORE Procedure for SAS Version 2.Beta3 *************************";
+print "************************ MEMORE Procedure for SAS Version 2.1 *************************";
 print "Written by Amanda K. Montoya and Andrew F. Hayes";
 print "Documentation available at akmontoya.com";
 print "****************************************************************************************";
@@ -1221,6 +1232,7 @@ end;*7;
 	  bdlabs = {"M1diff" "M2diff" "M3diff" "M4diff" "M5diff" "M6diff" "M7diff" "M8diff" "M9diff" "M10diff"};
 	  bslabs = {"M1avg" "M2avg" "M3avg" "M4avg" "M5avg" "M6avg" "M7avg" "M8avg" "M9avg" "M10avg"};
 	  modlabs="'X'"||"Mdiff"||"Mavg";
+	  if(mpairs = 1) then bdlabs = {"Mdiff"};
 	  if (mpairs ^= 1) then;do;
 	    modlabs = "'X'"||bdlabs[1,1:mpairs]||bslabs[1,1:mpairs];
 	  end;
@@ -1322,8 +1334,8 @@ if (model = 1) then; do; *6;
   contlab=contlab//"(C41)"//"(C42)"//"(C43)"//"(C44)"//"(C45)";
   print contres [label="Pairwise Contrasts Between Specific Indirect Effects" rowname=contlab colname=indlabs format=&decimals];
   contkey = " "||" "||" ";
-  do i = 1 to mpairs-1;
-    do j = i+1 to mpairs;
+  do i = 1 to (nrow(indres)-2);
+    do j = i+1 to (nrow(indres)-1);
 	  tttt=mlab[1,i]||" - "|| mlab[1,j];
 	  contkey=contkey//tttt;
 	end;
@@ -1453,6 +1465,9 @@ do i = 1 to nrow(runnotes);
   if (runnotes[i,1] = 23) then; do;
   	print "ERROR: Invalid model number. Please select Model 1, 2, or 3.";
   end;
+  if (runnotes[i,1] = 24) then; do;
+  	print "NOTE: Centering command has no effect for Model 1.";
+  end;
 end;
 
 
@@ -1530,7 +1545,7 @@ end;
 end; *10;
 	print conf [label = "Level of confidence for all confidence intervals in output:"];
 	if (((model = 2) | (model = 3))&(center = 1)) then; do;
-	  centvars = mnames;
+	  centvars = wnames;
 	  print centvars [label = "The following variables were mean centered prior to analysis:"];
 	end;
 end;*9;
