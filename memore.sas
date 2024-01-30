@@ -1579,8 +1579,5 @@ end; *10;
 	end;
 end;*9;
 
-%dichot(modcount=wcount, dat = moddat);
-
-
 quit;
 %mend;
