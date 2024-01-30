@@ -49,6 +49,22 @@ sobelres = product || sobse || sobelZ ||sobelp;
 print sobelres;
 %mend;
 
+%macro dichot (modcount=,dat=);
+dich = j(&modcount, 3, -999);
+do q = 1 to &modcount;
+    uniqdes = DESIGN(&dat[,q]);
+	dich[q,1] = (ncol(uniqdes) = 2);
+	if (dich[q,1] = 1) then;
+	do;
+		dichsort = J(nrow(&dat), 1, -999);
+		dichgrad = rank(&dat[,q]);
+		dichsort[dichgrad,1] = &dat[,q];
+		dich[q,2] = dichsort[1,1]; 
+		dich[q,3] = dichsort[nrow(&dat),1];
+	end;
+end;
+%mend;
+
 %macro memore (data=,y=xxxxxx,m=xxxxxx,w=xxxxxx,conf=95,mc=0,samples=5000,normal=0,bc=0,decimals=10.4,
   save=xxx,seed=0,contrast=0,xmint=1,serial=0, jn = 0, quantile = 0, plot = 0, center = 0,
   wmodval1 = 999.99, wmodval2 = 999.99, wmodval3 = 999.99, model = 1);
@@ -1562,5 +1578,9 @@ end; *10;
 	  print centvars [label = "The following variables were mean centered prior to analysis:"];
 	end;
 end;*9;
+
+%dichot(modcount=wcount, dat = moddat);
+
+
 quit;
 %mend;
