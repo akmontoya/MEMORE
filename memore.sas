@@ -37,7 +37,6 @@ toutput=sqrt(&df*(exp((&df-(5/6))*(xp##2)/(&df-(2/3)+.11/&df)##2)-1));
 %mend;
 
 %macro sobel (a=,sea=, b=, seb=);
-proc iml;
 product = &a*&b;
 print product;
 sobse = sqrt((&a**2)*(&seb**2)+(&b**2)*(&sea**2)); 
@@ -48,7 +47,6 @@ sobelp = 2*probnorm((-1)*abs(sobelZ));
 print sobelp;
 sobelres = product || sobse || sobelZ ||sobelp; 
 print sobelres;
-quit;
 %mend;
 
 %macro memore (data=,y=xxxxxx,m=xxxxxx,w=xxxxxx,conf=95,mc=0,samples=5000,normal=0,bc=0,decimals=10.4,
