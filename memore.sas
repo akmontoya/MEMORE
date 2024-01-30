@@ -1,10 +1,10 @@
 
 
-* MEMORE for SAS Version 2.1;
-* Copyright 2018;
+* MEMORE for SAS Version 3.Beta;
+* Copyright 2024;
 * by Amanda K. Montoya and Andrew F Hayes;
 * Documentation available online at www.akmontoya.com;
-* or by email to akmontoya@psych.ucla.edu;
+* or by email to akmontoya@ucla.edu;
 
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software;
 * and associated documentation files (the "Software"), to use the software in this form.  Distribution;
@@ -34,6 +34,21 @@ y5=sqrt(-2*log(ppv));
 xp=y5+((((y5*p4+p3)*y5+p2)*y5+p1)*y5+p0)/((((y5*q4+q3)*y5+q2)*y5+q1)*y5+q0);
 if (&p <= .5) then;do;xp=-xp;end;
 toutput=sqrt(&df*(exp((&df-(5/6))*(xp##2)/(&df-(2/3)+.11/&df)##2)-1));
+%mend;
+
+%macro sobel (a=,sea=, b=, seb=);
+proc iml;
+product = &a*&b;
+print product;
+sobse = sqrt((&a**2)*(&seb**2)+(&b**2)*(&sea**2)); 
+print sobse;
+sobelZ = product/sobse; 
+print sobelZ;
+sobelp = 2*probnorm((-1)*abs(sobelZ));
+print sobelp;
+sobelres = product || sobse || sobelZ ||sobelp; 
+print sobelres;
+quit;
 %mend;
 
 %macro memore (data=,y=xxxxxx,m=xxxxxx,w=xxxxxx,conf=95,mc=0,samples=5000,normal=0,bc=0,decimals=10.4,
@@ -105,7 +120,6 @@ mc = (&mc = 1);serial = (&serial = 1);jn = (&jn = 1); plot = (&plot = 1); quanti
 center = (&center = 1); contrast = (&contrast = 1); normal = (&normal = 1); xmint = (&xmint = 1);
 if (((model = 2) | (model = 3)) & (ncol(wnames)> 1) & (jn = 1)) then;
 	do; runnotes[16,1] = 16; jn = 0; end;
-print serial;
 if(criterr ^= 1) then; do;
 	if (missing > 0) then;do;runnotes[1,1]=1;end;
 	if (ncol(ynames) ^= 2) then;do;runnotes[2,1]=2;criterr=1;end;
@@ -1497,10 +1511,7 @@ if (model = 1) then; do; *10;
   end;
   
   blabs="b1"||"b2"||"b3"||"b4"||"b5"||"b6"||"b7"||"b8"||"b9"||"b10";
-  print blabs;
   savelab=j(1,3*Mpairs+3+(cols+serind-mpairs+1)*(serial=1),"           ");
-  print savelab; 
-  print serial;
   if (serial = 0) then; do;
 	  do i=1 to mpairs;
 	    savelab[1,3*i]=mlab[1,i];
@@ -1516,17 +1527,13 @@ if (model = 1) then; do; *10;
 	  savelab[1,(ncol(savelab)-2):(ncol(savelab))]="TotalIndirect"||"Direct"||"Total";
   end;
   if (serial = 1) then; do;
-  	print serial [Label = "entered serial"];
   	savelab[1,1:3] = "a1"||"b1"||"Ind1";
 	do i = 2 to Mpairs;
 		savelab[1,(2*i):(2*i+1)] = blabs[1,i]||mlab[1,i];
 	end;
-	print xmint;
 	if (xmint = 1) then; do;
 		serlab = 'a2'||'d1'||'f1'||'a3'||'d2'||'f2'||'d3'||'f3'||'a4'||'d4'||'f4'||'d5'||'f5'||'d6'||'f6'||'a5'||'d7'||'f7'||'d8'||'f8'||'d9'||'f9'||'d10'||'f10';
-		print serlab;
 		savelab[1,(2+2*mpairs):(1+2*mpairs+cols)] = serlab[1,1:cols];
-		print savelab;
 		savelab[1,(2+2*mpairs+cols):(1+2*mpairs+cols+serind)] = mlab[1,(nrow(indres) - serind):(nrow(indres)-1)];
 	end;
 	if (xmint = 0) then; do;
@@ -1535,7 +1542,7 @@ if (model = 1) then; do; *10;
 		savelab[1,(2+2*mpairs+cols):(1+2*mpairs+cols+serind)] = mlab[1,(nrow(indres) - serind):(nrow(indres)-1)];
 	end;
 	savelab[1,(ncol(savelab)-2):(ncol(savelab))] = "TotalIndirect" || "Direct" || "Total";
-	print savelab;
+
 end;
 
   if ((savboot=1) & (mc = 1)) then;do;
