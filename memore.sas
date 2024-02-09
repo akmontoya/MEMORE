@@ -65,6 +65,18 @@ do q = 1 to &modcount;
 end;
 %mend;
 
+%macro probres (coef=,values=,semat=,df=);
+pbresmat= &values || J(nrow(&values), 6, -999); 
+values = J(nrow(&values),1,1)|| &values;
+pbresmat[,ncol(&values)+1] = values*&coef;
+pbresmat[,ncol(&values)+2] = sqrt(vecdiag(values*&semat*t(values)));
+pbresmat[,ncol(&values)+3] = pbresmat[,ncol(&values)+1]/pbresmat[,ncol(&values)+2];
+pbresmat[,ncol(&values)+4] = 2*(1-probt(abs(pbresmat[,ncol(&values)+3]), &df));
+%cdfinvt(p = temp, df = &df);
+tcritb = toutput;
+pbresmat[,(ncol(&values)+5):(ncol(&values)+6)] = pbresmat[,ncol(&values)+1]-tcritb*pbresmat[,ncol(&values)+2] || pbresmat[,ncol(&values)+1]+tcritb*pbresmat[,ncol(&values)+2];
+%mend;
+
 %macro memore (data=,y=xxxxxx,m=xxxxxx,w=xxxxxx,conf=95,mc=0,samples=5000,normal=0,bc=0,decimals=10.4,
   save=xxx,seed=0,contrast=0,xmint=1,serial=0, jn = 0, quantile = 0, plot = 0, center = 0,
   wmodval1 = 999.99, wmodval2 = 999.99, wmodval3 = 999.99, model = 1);
