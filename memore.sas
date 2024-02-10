@@ -77,6 +77,36 @@ tcritb = toutput;
 pbresmat[,(ncol(&values)+5):(ncol(&values)+6)] = pbresmat[,ncol(&values)+1]-tcritb*pbresmat[,ncol(&values)+2] || pbresmat[,ncol(&values)+1]+tcritb*pbresmat[,ncol(&values)+2];
 %mend;
 
+%macro centerd(centdat =);
+centdat = &centdat;
+print centdat;
+%dichot(modcount=ncol(centdat), dat = centdat);
+print dich;
+avgs = centdat[+,]/nrow(centdat);
+print avgs; 
+if(ncol(centdat)>1) then;
+do;
+	test = diag(avgs[1,1:(ncol(centdat))]);
+	test2 = t(1-dich[,1]*(center=2));
+	print test;
+	print test2;
+	centmean =diag(avgs[1,1:(ncol(centdat))])*t(1-dich[,1]*(center=2)); 
+	print centmean;
+	print centmean;
+end;
+if(ncol(centdat) = 1) then;
+	do;
+	centmean = avgs[1,1:(ncol(centdat))]*t(1-dich[,1]*(center=2)); 
+	print centmean;
+end;
+outdat = centdat - J(nrow(centdat),ncol(centdat),1)*centmean;
+test3 = J(nrow(centdat),ncol(centdat),1)*centmean;
+print test3;
+print outdat;
+outsum = outdat[+,];
+print outsum;
+%mend;
+
 %macro memore (data=,y=xxxxxx,m=xxxxxx,w=xxxxxx,conf=95,mc=0,samples=5000,normal=0,bc=0,decimals=10.4,
   save=xxx,seed=0,contrast=0,xmint=1,serial=0, jn = 0, quantile = 0, plot = 0, center = 0,
   wmodval1 = 999.99, wmodval2 = 999.99, wmodval3 = 999.99, model = 1);
