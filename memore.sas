@@ -79,32 +79,17 @@ pbresmat[,(ncol(&values)+5):(ncol(&values)+6)] = pbresmat[,ncol(&values)+1]-tcri
 
 %macro centerd(centdat =);
 centdat = &centdat;
-print centdat;
 %dichot(modcount=ncol(centdat), dat = centdat);
-print dich;
 avgs = centdat[+,]/nrow(centdat);
-print avgs; 
 if(ncol(centdat)>1) then;
 do;
-	test = diag(avgs[1,1:(ncol(centdat))]);
-	test2 = t(1-dich[,1]*(center=2));
-	print test;
-	print test2;
-	centmean =diag(avgs[1,1:(ncol(centdat))])*t(1-dich[,1]*(center=2)); 
-	print centmean;
-	print centmean;
+	centmean=diag(diag(avgs[1,1:(ncol(centdat))])*(1-dich[,1]*(center=2))); 
 end;
 if(ncol(centdat) = 1) then;
 	do;
 	centmean = avgs[1,1:(ncol(centdat))]*t(1-dich[,1]*(center=2)); 
-	print centmean;
 end;
 outdat = centdat - J(nrow(centdat),ncol(centdat),1)*centmean;
-test3 = J(nrow(centdat),ncol(centdat),1)*centmean;
-print test3;
-print outdat;
-outsum = outdat[+,];
-print outsum;
 %mend;
 
 %macro memore (data=,y=xxxxxx,m=xxxxxx,w=xxxxxx,conf=95,mc=0,samples=5000,normal=0,bc=0,decimals=10.4,
