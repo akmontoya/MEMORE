@@ -1313,7 +1313,7 @@ end;*7;
 	intlabs1 = {"Int1" "Int2" "Int3" "Int4" "Int5" "Int6" "Int7" "Int8" "Int9" "Int10"};
 	intlabs2 = {"Int11" "Int12" "Int13" "Int14" "Int15" "Int16" "Int17" "Int18" "Int19" "Int20"};
 	intlabs3= {"Int21" "Int22" "Int23" "Int24" "Int25" "Int26" "Int27" "Int28" "Int29" "Int30"};
-	if (model = 3) then; do;
+	if ((model = 3)& (wcount > 1)) then; do;
 		intlabs = intlabs1 || intlabs2 || intlabs3;
 		modlabs = modlabs || intlabs[1, 1:nint];
 	end;
