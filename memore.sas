@@ -154,12 +154,11 @@ end;
   wmodval1 = 999.99, wmodval2 = 999.99, wmodval3 = 999.99, model = 1);
 options pagesize=32767;
 proc iml;
-runnotes=j(24,1,0);
+runnotes=j(30,1,0);
 criterr=0;
 model = &model; 
-modelmat = j(3,1,1)*model; 
-modelmt2 = {1,2,3};
-validtst = (modelmat = modelmt2);
+modelmt2 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
+validtst = (model = modelmt2);
 validmod = any(validtst);
 
 if (validmod ^= 1) then;
@@ -179,7 +178,7 @@ do;
 	runnotes[21,1] = 21;
 end;
 
-if((m = "xxxxxx") & (model = 1)) then; 
+if((m = "xxxxxx") & ((model = 1)|(model>=4))) then; 
 do;
 	criterr = 1;
 	mnames = "xxxxxx";
@@ -200,12 +199,20 @@ do;
 		names = {&m &y};
 		wnames = "xxxxxx";
 	end;
-	else do;
+	if ((model=2)|(model=3))then; do;
 		read all var{&w} into wdat;
 		wnames = {&w};
 		read all var{&w &y} into data;
 		names = {&w &y};
 		mnames = "xxxxxx";
+	end;
+	if (model >= 4) then; do;
+		read all var{&m} into mdat;
+		mnames = {&m};
+		read all var{&w} into wdat;
+		wnames = {&w};
+		read all var{&w &m &y} into data;
+		names = {&w &m &y};
 	end;
 	ninit=nrow(data);
 	xx=(data = .);
@@ -215,18 +222,76 @@ do;
 	missing=ninit-nrow(data);
 end;
 mc = (&mc = 1);serial = (&serial = 1);jn = (&jn = 1); plot = (&plot = 1); quantile = (&quantile = 1);
-center = (&center = 1); contrast = (&contrast = 1); normal = (&normal = 1); xmint = (&xmint = 1);
+contrast = (&contrast = 1); normal = (&normal = 1); xmint = (&xmint = 1);
+
+if((model=1)&(plot=1)) then; do;
+	plot = 0;
+	runnotes[30,1] = 30;
+end;
+
+center = &center;
+centervals = {0,1,2};
+if(1-any(center=centervals)) then;do;
+	runnotes[28,1] = 28;
+	center = 0;
+end;
+
+if((model>=4)&(serial=1))then;do;
+	serial = 0;
+	runnotes[25,1]=25;
+end;
+
+
 if (((model = 2) | (model = 3)) & (ncol(wnames)> 1) & (jn = 1)) then;
 	do; runnotes[16,1] = 16; jn = 0; end;
+
+if((model=17)&(xmint=0))then;do;
+	criterr=1;
+	runnotes[27,1]=27;
+end;
+
+apathmod = 0; bpathmod = 0; cppathmod = 0; dpathmod = 0;
+atvec = {4,5,6,7,9,10,12,15};
+btvec = {4,5,6,8,9,11,13,16};
+dtvec = {4,5,7,8,10,11,14,17};
+cptvec = {4,6,7,8,12,13,14,18};
+
+print (any(model=atvec));
+
+if(any(model=atvec))then;do;
+	apathmod = 1;
+end;
+if(any(model=btvec))then;do;
+	bpathmod = 1;
+end;
+if(any(model=cptvec))then;do;
+	cppthmd = 1;
+end;
+if(any(model=dtvec))then;do;
+	dpathmod = 1;
+end;
+
+if(xmint=0)then;do;
+	dpathmod = 0;
+end;
+
+anymod = apathmod+bpathmod+cppthmd+dpathmod;
+anymod = (anymod > 0);
+
 if(criterr ^= 1) then; do;
 	if (missing > 0) then;do;runnotes[1,1]=1;end;
 	if (ncol(ynames) ^= 2) then;do;runnotes[2,1]=2;criterr=1;end;
 end;
 mcount=ncol(mnames);
 wcount = ncol(wnames);
+print wnames;
+if(any(wnames = "xxxxxx"))then;do;
+	wcount = 0;
+end;
+
 if ("&save" = "") then saveboot="xxx";else saveboot="&save";
 
-if ((model = 2) | (model = 3)) then; do;
+if ((model = 2) | (model = 3)|(anymod >0)) then; do;
 	wmodval1 = {&wmodval1};
 	wmodval2 = {&wmodval2};
 	wmodval3 = {&wmodval3};
@@ -251,7 +316,7 @@ if ((model = 2) | (model = 3)) then; do;
 	if (setswv = 0) then modvmat = J(1,1, -999);
 end;
 
-if (((mcount < 2) | ((mcount/2) ^= floor(mcount/2)) | (mcount > 20)) & (criterr ^= 1)& (model = 1)) then; do;
+if (((mcount < 2) | ((mcount/2) ^= floor(mcount/2)) | (mcount > 20)) & (criterr ^= 1)& ((model = 1)|(model>=4))) then; do;
   runnotes[6,1]=6;criterr=1;
 end;
 
@@ -260,8 +325,13 @@ if(((model = 2) | (model = 3)) & ((wcount = 0) | (wcount > 5))) then; do;
 	criterr = 1;
 end;
 
+if((model>=4)&(wcount^=1))then;do;
+	runnotes[9,1] = 9;
+	criterr = 1;
+end;
+
 if (criterr = 0) then; do;
-	if (model = 1) then; do;
+	if ((model = 1)|(model>=4)) then; do;
 	  do i = 1 to mcount;
 	    if ((mnames[1,i]=ynames[1,1]) | (mnames[1,i]=ynames[1,2]) | (ynames[1,1]=ynames[1,2])) then;do;
 	      runnotes[8,1]=8;criterr=1;
@@ -276,6 +346,16 @@ if (criterr = 0) then; do;
 	  end;
 	end;
 end;
+
+if((model>=4)&(wcount>0)) then; do;
+	do i = 1 to mcount;
+		if(mnames[1,i] = wnames[1,1]) then; do;
+			runnotes[8,1] = 8;
+			criterr = 1;
+		end;
+	end;
+end;
+
 
 if ((serial=1) & (mc=1)) then;do;
   runnotes[12,1]=12;mc=0;
@@ -294,6 +374,8 @@ if (criterr <> 1) then; do;
 	  	end;
 	end;
 end;
+
+*ENDED HERE 02/13/24 12:42pm;
 
 if (&samples = 0) then;do;
   samples=5000;mc=1;
