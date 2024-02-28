@@ -38,15 +38,10 @@ toutput=sqrt(&df*(exp((&df-(5/6))*(xp##2)/(&df-(2/3)+.11/&df)##2)-1));
 
 %macro sobel (a=,sea=, b=, seb=);
 product = &a*&b;
-print product;
 sobse = sqrt((&a**2)*(&seb**2)+(&b**2)*(&sea**2)); 
-print sobse;
 sobelZ = product/sobse; 
-print sobelZ;
 sobelp = 2*probnorm((-1)*abs(sobelZ));
-print sobelp;
 sobelres = product || sobse || sobelZ ||sobelp; 
-print sobelres;
 %mend;
 
 %macro dichot (modcount=,dat=);
@@ -256,8 +251,6 @@ btvec = {4,5,6,8,9,11,13,16};
 dtvec = {4,5,7,8,10,11,14,17};
 cptvec = {4,6,7,8,12,13,14,18};
 
-print (any(model=atvec));
-
 if(any(model=atvec))then;do;
 	apathmod = 1;
 end;
@@ -284,7 +277,6 @@ if(criterr ^= 1) then; do;
 end;
 mcount=ncol(mnames);
 wcount = ncol(wnames);
-print wnames;
 if(any(wnames = "xxxxxx"))then;do;
 	wcount = 0;
 end;
@@ -375,8 +367,6 @@ if (criterr <> 1) then; do;
 	end;
 end;
 
-*ENDED HERE 02/13/24 12:42pm;
-
 if (&samples = 0) then;do;
   samples=5000;mc=1;
 end;
@@ -400,12 +390,17 @@ if ((contrast = 1) & (serial = 1) & (mcount > 6) & (model = 1)) then; do;
 	runnotes[20,1] = 20;
 end;
 
-if (((mcount < 4) | (mcount > 10)) & (model = 1) & (serial = 1)) then; do;
+if((contrast=1) & ((apathmod=1)|(bpathmod=1))) then; do;
+	contrast = 0;
+	runnotes[26,1] = 26;
+end;
+
+if (((mcount < 4) | (mcount > 10)) & ((model = 1)|(model >=4)) & (serial = 1)) then; do;
 	runnotes[13,1] = 13;
 	criterr = 1;
 end;
 
-if ((model = 1)&(center = 1)) then; do;
+if ((model = 1)&(center > 0)) then; do;
 	runnotes[24,1] = 24;
 end;
 
@@ -429,6 +424,9 @@ n=nrow(data);
 	if (model = 1) then; do;
 		nfail = mcount + 2;
 	end;
+	if(model >= 4) then; do;
+		nfail = 2*mcount+3;
+	end;
 	if (n < nfail) then; do; 
 		runnotes[19,1] = 19;
 		criterr = 1;
@@ -436,18 +434,53 @@ n=nrow(data);
 end;
 if (criterr=0) then;do; *1;
 
-  if (model = 1) then; do;
+  if ((model = 1)|(model>=4)) then; do;
     mpairs=mcount/2;
   	mnamemat=shape(mnames,mpairs,2);
   	transmat={1 0.5, -1 0.5};
   	tmat=j(ncol(data),ncol(data),0);
-  	do i = 1 to (2*mpairs+1) by 2;
+	if(model >=4) then; do;
+		tmat[1:wcount,1:wcount] = I(wcount);
+	end;
+  	do i = (1+Wcount) to (2*mpairs+1+Wcount) by 2;
    	 tmat[i:(i+1),i:(i+1)]=transmat;
   	end;
   datat=data*tmat;
   select = {1 3 5 7 9 11 13 15 17 19 21};
-  if (xmint = 0) then; dataT = dataT[,select[1:(Mpairs+1)]];
-  if (xmint = 1) then; dataT = datat[,1:(ncol(datat)-1)];
+  if (model >=4) then; do; 
+  	select = 1:wcount || select+wcount;
+  end;
+  if (xmint = 0) then; dataT = dataT[,select[1:(Mpairs+1+Wcount)]];
+  if (xmint = 1) then; do;
+	dataT = datat[,1:(ncol(datat)-1)];
+	do j = (Wcount+2) to (ncol(dataT)-1) by 2;
+		summean = dataT[+,j]/N;
+		dataT[,j] = (dataT[,j] - summean);
+	end;
+  end;
+
+  if (anymod = 1) then; do;
+  	moddat = dataT[,1:wcount];
+	if (center > 0) then; do;
+		%centerd(centdat = moddat);
+		dataT[,1:Wcount] = outdat;
+		moddat = outdat;
+	end;
+	do i = (wcount+1) to (ncol(dataT) - 1) by (1+xmint);
+		if (bpathmod = 1) then; do;
+			test = moddat[,1]#dataT[,i];
+			print test;
+			moddat = moddat || moddat[,1]#dataT[,i];
+		end;
+		if (dpathmod = 1) then; do;
+			moddat = moddat || moddat[,1]#dataT[,i+1];
+		end;
+		print moddat;
+	end;
+  end;
+
+
+
   end;
   if (model = 2) then; do;
   	mpairs = 0;
@@ -457,10 +490,11 @@ if (criterr=0) then;do; *1;
 	tempvec = tempvec // temp2;
 	transmat = (I(wcount)//J(2, wcount,0)) ||tempvec;
 	datat = data*transmat;
-	if (center = 1) then; do;
+	if (center > 0) then; do;
+		%centerd(centdat = moddat);
 		centmean = diag(moddat[+,]/n);
-		datat[,1:wcount] = datat[,1:wcount] - J(n, wcount, 1)*centmean;
-		moddat = datat[,1:wcount];
+		dataT[,1:wcount] = outdat;
+		moddat = outdat;
 	end;
   end;
   if (model = 3) then;do;
@@ -471,10 +505,10 @@ if (criterr=0) then;do; *1;
 	tempvec = tempvec // temp2;
 	transmat = (I(wcount)//J(2, wcount,0)) ||tempvec;
 	datat = data*transmat;
-	if (center = 1) then; do;
-		centmean = diag(moddat[+,]/n);
-		datat[,1:wcount] = datat[,1:wcount] - J(n, wcount, 1)*centmean;
-		moddat = datat[,1:wcount];
+	if (center > 0) then; do;
+		%centerd(centdat = moddat);
+		datat[,1:wcount] = outdat;
+		moddat = outdat;
 	end;
 	if (wcount > 1) then; do;
 		do h = 1 to (wcount - 1);
@@ -497,14 +531,53 @@ if (criterr=0) then;do; *1;
   alpha=(1-.01*conf);
   temp=alpha/2;
 
-if (model = 1) then; do; *3;
-  aresmat=j(mpairs,6,0);
-  ghostdes=j(n,1,1);
-  %cdfinvt (p=temp,df=(n-1));
+if ((model = 1)|(model >=4)) then; do; *3;
+  aresmat=j(mpairs*(1+apathmod),6,-999);
+  ades=j(n,1,1);
+  if(apathmod=1) then; do;
+  	ades = ades || dataT[,1:wcount];
+	amodsum = j(mpairs,7, -999);
+  end;
+  %cdfinvt (p=temp,df=(n-ncol(ades)));
   tcrita=toutput;
   tcritc=toutput;
   
   counterj = 1;
+  sem3aall = j(ncol(ades)*mpairs, ncol(ades), -999);
+  aWcount = (apathmod = 1)*Wcount;
+
+  do j = 1 to mpairs;
+  	colj = (1+xmint)*j + Wcount - xmint;
+	rowj = j*(1+aWcount) - aWcount;
+	if(det(t(ades)*ades) = 0) then; do;
+		criterr = 1;
+		runnotes[29,1] = 29;
+		*break;
+	end;
+	avec = inv(t(ades)*ades)*t(adres)*dataT[,colj];
+	print avec;
+	M3pred = ades*avec;
+	print M3pred;
+	M3ssr = ((dataT[,colj]-M3pred)##2)[+,];
+	print m3ssr;
+	M3sst = ((dataT[,colj]-dataT[+,colj]/N)##2)[+,];
+	print M3sst;
+	M3Rsq = 1 - M3ssr/m3sst;
+	print M3Rsq;
+	Rsqmat = 0||M3rsq ;
+	print rsqmat;
+	M3r = sqrt(max(Rsqmat));
+	print M3r;
+	M3df1 = ncol(ades) - 1;
+	print m3df1;
+	M3df2 = (N - ncol(ades));
+	print m3df2;
+	m3msr = m3ssr/m3df2;
+	print m3msr;
+  end;
+
+
+
   do j=1 to (ncol(dataT)-1) by (1+xmint);
   	if (xmint = 1) then; do;
     	summean=datat[,j+1];summean=summean[+,]/n;

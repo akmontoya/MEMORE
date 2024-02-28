@@ -457,16 +457,15 @@ END IF.
 
 
 
-Compute samples = !samples. 
-**DO IF (!samples = 0). 
-**   COMPUTE samples = 5000. 
-**   COMPUTE mc = 1. 
-**ELSE. 
-**    COMPUTE samples = abs(trunc(!samples))*(abs(trunc(!samples)) >= 1000) + 5000*(abs(trunc(!samples)) < 1000). 
-**END IF. 
-**DO IF (samples <> !samples). 
-**    COMPUTE runnotes(3, 1) = 3. 
-**END IF.
+DO IF (!samples = 0). 
+   COMPUTE samples = 5000. 
+   COMPUTE mc = 1. 
+ELSE. 
+    COMPUTE samples = abs(trunc(!samples))*(abs(trunc(!samples)) >= 1000) + 5000*(abs(trunc(!samples)) < 1000). 
+END IF. 
+DO IF (samples <> !samples). 
+    COMPUTE runnotes(3, 1) = 3. 
+END IF.
 
 COMPUTE Conf = !Conf. 
 DO IF (!Conf < 50 OR !Conf > 99.99). 
