@@ -40,4 +40,4 @@ print moddat;
 quit;
 
 
-%memore(y = y1 y2, m = m11 m12, w = m21 m22, model = 8, center = 2, plot = 1, data = parallelserial);
+%memore(y = y1 y2, m = m11 m12, w = m21, model = 4, center = 2, plot = 1, data = parallelserial);

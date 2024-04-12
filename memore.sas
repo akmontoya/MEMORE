@@ -549,12 +549,13 @@ if ((model = 1)|(model >=4)) then; do; *3;
   do j = 1 to mpairs;
   	colj = (1+xmint)*j + Wcount - xmint;
 	rowj = j*(1+aWcount) - aWcount;
+	print rowj;
 	if(det(t(ades)*ades) = 0) then; do;
 		criterr = 1;
 		runnotes[29,1] = 29;
 		*break;
 	end;
-	avec = inv(t(ades)*ades)*t(adres)*dataT[,colj];
+	avec = inv(t(ades)*ades)*t(ades)*dataT[,colj];
 	print avec;
 	M3pred = ades*avec;
 	print M3pred;
@@ -574,6 +575,37 @@ if ((model = 1)|(model >=4)) then; do; *3;
 	print m3df2;
 	m3msr = m3ssr/m3df2;
 	print m3msr;
+
+	if(apathmod = 1) then; do;
+		M3F = m3df2*m3rsq/(m3df1*(1-m3rsq));
+		print m3f;
+		m3p = 1-probf(M3F, m3df1, m3df2);
+		print m3p;
+		amodsum[j,] = M3r||m3rsq||m3msr||m3F||m3df1||m3df2||m3p;
+	end;
+
+	sem3amat = (m3msr*inv(t(ades)*ades));
+	print sem3amat;
+	sem3aall[rowj:(rowj+aWcount),] = sem3amat;
+	print sem3aall;
+	sem3a = (vecdiag(sem3amat))##(1/2);
+	print sem3a;
+	test = aresmat[rowj:(rowj+aWcount),1];
+	print test;
+	print avec;
+	aresmat[rowj:(rowj+aWcount),1] = avec;
+	print aresmat;
+	aresmat[rowj:(rowj+aWcount),2] = sem3a;
+	print aresmat;
+	aresmat[rowj:(rowj+aWcount),3] = avec#(1/sem3a);
+	print aresmat;
+	aresmat[rowj:(rowj+aWcount),4] = 2*(1-probt(abs(aresmat[rowj:(rowj+aWcount),3]),m3df2));
+	print aresmat;
+	aresmat[rowj:(rowj+aWcount),5] = aresmat[rowj:(rowj+aWcount),1]-tcrita*aresmat[rowj:(rowj+aWcount),2];
+	print aresmat;
+	aresmat[rowj:(rowj+aWcount),6] = aresmat[rowj:(rowj+aWcount),1]+tcrita*aresmat[rowj:(rowj+aWcount),2];
+	print aresmat;
+
   end;
 
 
