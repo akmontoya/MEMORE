@@ -1604,7 +1604,7 @@ if (model = 1) then; do; *6;
    clab={"Effect" "SE" "Z" "p"};
    print normres [label = "Normal Theory Test for Indirect Effect" rowname=mlab colname=clab format=&decimals];
  end;
- indkey=j((ncol(m2lab)-1),(3+2*Mpairs),"        ");
+ indkey=j((ncol(m2lab)-1),5+2*(Mpairs-1)*serial,"        ");
  do i = 1 to mpairs;
    indkey[i,1:5]="X"||"->"||bdlabs[1,i]||"->"||"Ydiff";
  end;
