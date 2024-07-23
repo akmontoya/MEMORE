@@ -866,11 +866,7 @@ do i = 2+cppthmd to (1+cppthmd+mpairs*(1+xmint)) by (1+xmint);
 
 	if (mc = 1) then;do;
 	  ones = j(mcsamps,1,1);
-	  test1 = rndna[,counteri:(counteri+apathmod)]*(ones*t(aresmat[aindx:(aindx+apathmod),2]));
-	  print test1;
-	  test2 = (ones*t(aresmat[aindx:(aindx+apathmod),1]));
-	  print test2;
-      asamp=rndna[,counteri:(counteri+apathmod)]*(ones*t(aresmat[aindx:(aindx+apathmod),2]))+(ones*t(aresmat[aindx:(aindx+apathmod),1]));
+      asamp=rndna[,counteri:(counteri+apathmod)]#(ones*t(aresmat[aindx:(aindx+apathmod),2]))+(ones*t(aresmat[aindx:(aindx+apathmod),1]));
 	  bsamp=rndnb[,counteri]+bresmat[counteri,1];
 	  absamp=asamp#(bsamp*j(1,ncol(asamp),1));
 	  mcsave[,(1+(counteri-1)*(1+apathmod)):(counteri*(1+apathmod))]=asamp;
@@ -890,9 +886,7 @@ do i = 2+cppthmd to (1+cppthmd+mpairs*(1+xmint)) by (1+xmint);
 	end;
 	counteri = counteri + 1;
   end;
-end;
 
-do i = 2+cppthmd to (1+cppthmd+mpairs*(1+xmint)) by (1+xmint);
   if (serial = 1) then;do;
   	counter = 1; 
 	indse = j(serind, mpairs+1, 1);
