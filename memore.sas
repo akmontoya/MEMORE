@@ -1,3 +1,4 @@
+%memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, normal = 1, model = 4, data = parallelserial);
 
 
 * MEMORE for SAS Version 3.Beta;
@@ -840,23 +841,35 @@ do i = 2+cppthmd to (1+cppthmd+mpairs*(1+xmint)) by (1+xmint);
 	** Calculating Indirects in Sample;
 	aindx = counteri*(1+apathmod)-apathmod-((1+apathmod)*mpairs)*(counteri > mpairs);
 	print aindx;
-	amat = aresmat(aindx:(aindx+(apathmod=1)),1);
+	amat = aresmat[aindx:(aindx+(apathmod=1)),1];
 	print amat;
 	indirect=amat*bresmat[counteri,1];
 	length = (1+apathmod)*(1+bpathmod);
-	indres[(1+length/2*(counteri>mpairs)+(counteri-1-mpairs*(counteri>mpairs))*length):(1+length/2*(counteri>mpairs)+(counteri-1-mpairs*(counteri>mpairs))*length+apathmod,1] = indirect;
+	indres[(1+length/2*(counteri>mpairs)+(counteri-1-mpairs*(counteri>mpairs))*length):(1+length/2*(counteri>mpairs)+(counteri-1-mpairs*(counteri>mpairs))*length+apathmod),1] = indirect;
 	print indres;
 	if (normal = 1) then;do;
-	  %sobel(a = aresmat[aindx,1], sea = aresmat[aindx,2], b = bresmat[counteri,1], seb = bresmat(counteri,2);
+	  print normal;
+	  print aresmat;
+	  print (aresmat[aindx,1]);
+	  print (aresmat[aindx,2]);
+	  print (bresmat[counteri,1]);
+	  print (bresmat[counteri,2]);
+	  %sobel(a = (aresmat[aindx,1]), sea = (aresmat[aindx,2]), b = (bresmat[counteri,1]), seb = (bresmat[counteri,2]));
 	  normres[((apathmod+1)*counteri-apathmod),] = sobelres;
+	  print normres;
 	  if(apathmod = 1) then; do;
-	  	%sobel(a = aresmat[aindx+1,1], sea = aresmat[aindx+1,2], b = bresmat[counteri,1], seb = bresmat(counteri,2);
+	  	%sobel(a = (aresmat[aindx+1,1]), sea = (aresmat[aindx+1,2]), b = (bresmat[counteri,1]), seb = (bresmat[counteri,2]));
 		normres[((apathmod+1)*counteri),] = sobelres;
+		print normres;
 	  end;
 	end;
 
 	if (mc = 1) then;do;
 	  ones = j(mcsamps,1,1);
+	  test1 = rndna[,counteri:(counteri+apathmod)]*(ones*t(aresmat[aindx:(aindx+apathmod),2]));
+	  print test1;
+	  test2 = (ones*t(aresmat[aindx:(aindx+apathmod),1]));
+	  print test2;
       asamp=rndna[,counteri:(counteri+apathmod)]*(ones*t(aresmat[aindx:(aindx+apathmod),2]))+(ones*t(aresmat[aindx:(aindx+apathmod),1]));
 	  bsamp=rndnb[,counteri]+bresmat[counteri,1];
 	  absamp=asamp#(bsamp*j(1,ncol(asamp),1));
@@ -873,10 +886,13 @@ do i = 2+cppthmd to (1+cppthmd+mpairs*(1+xmint)) by (1+xmint);
 	      tempsm=(mcsort[,1]-tempmn)##2;semc=sqrt(tempsm[+,]/(mcsamps-1));
 		  mcres[j+(1+apathmod)*(counteri-1),]=indirect[j,1]||semc||mcllci||mculci;
 	  end;
+	  print (mcres);
 	end;
 	counteri = counteri + 1;
   end;
+end;
 
+do i = 2+cppthmd to (1+cppthmd+mpairs*(1+xmint)) by (1+xmint);
   if (serial = 1) then;do;
   	counter = 1; 
 	indse = j(serind, mpairs+1, 1);
