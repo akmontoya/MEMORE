@@ -1,3 +1,4 @@
+%memore(y = y1 y2, m = m11 m12 m21 m22 m31 m32, serial = 1, model = 1, normal = 1, data = parallelserial);
 %memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, normal = 1, model = 4, data = parallelserial);
 
 
@@ -863,7 +864,8 @@ do i = 2+cppthmd to (1+cppthmd+mpairs*(1+xmint)) by (1+xmint);
 		print normres;
 	  end;
 	end;
-
+	
+	** Calculating Indirects in Sample;
 	if (mc = 1) then;do;
 	  ones = j(mcsamps,1,1);
       asamp=rndna[,counteri:(counteri+apathmod)]#(ones*t(aresmat[aindx:(aindx+apathmod),2]))+(ones*t(aresmat[aindx:(aindx+apathmod),1]));
@@ -886,7 +888,8 @@ do i = 2+cppthmd to (1+cppthmd+mpairs*(1+xmint)) by (1+xmint);
 	end;
 	counteri = counteri + 1;
   end;
-
+  
+  * Serial Mediation indirect paths;
   if (serial = 1) then;do;
   	counter = 1; 
 	indse = j(serind, mpairs+1, 1);
@@ -977,25 +980,26 @@ do i = 2+cppthmd to (1+cppthmd+mpairs*(1+xmint)) by (1+xmint);
 	end;
 	if (normal = 1) then;do;
       serlind=indres[(mpairs+1):(nrow(indres)-1)];
-	  serialse = indse[+,];
-      sobelZ=serlind/serialse;
+	  serialse = sqrt(indse[+,]);
+      sobelZ=serlind/t(serialse);
 	  sobelp=2*(probnorm(-abs(sobelZ)));
-	  serindn=serlind||serialse||sobelZ||sobelp;
-	  normres=normres//serindn;
+	  serindn=serlind||t(serialse)||sobelZ||sobelp;
+	  normres[(mpairs+1):(mpairs+serind),]=serindn;
+	  print normres;
 	end;
   end;
-
+ 
+  * Total Monte Carlo;
   if (mc = 1) then;do;
-    mcsave[,3*mpairs+1]=mcsave2[,+];
-	mcsort=mcsave[,3*mpairs+1];
+  	print mcind;
+  	mcind[,ncol(mcind)] = mcind[,+];
+	mcsort=mcind[,ncol(mcind)];
     mcgrad=rank(mcsort);
-    mcsort2=mcsort;
-	mcsort2[mcgrad]=mcsort;
-	mcsort=mcsort2;
+	mcsort[mcgrad]=mcsort;
 	mcllci=mcsort[lcii];mculci=mcsort[ucii];
     tempmn=mcsort[+,]/mcsamps;
     tempsm=(mcsort[,1]-tempmn)##2;semc=sqrt(tempsm[+,]/(mcsamps-1));
-	mcres[mpairs+1,]=indres[+,]||semc||mcllci||mculci;
+	mcres[nrow(mcres),]=indres[+,]||semc||mcllci||mculci;
 	if ((contrast=1) & (mpairs > 1)) then;do;
       npairs = Mpairs*(Mpairs-1)/2; 
 	  contres=j(npairs,4,0);
@@ -1004,7 +1008,7 @@ do i = 2+cppthmd to (1+cppthmd+mpairs*(1+xmint)) by (1+xmint);
 	  counter=1;
 	  do i = 1 to mpairs-1;
 	    do j = (i+1) to mpairs;
-		  contsamp[,counter]=mcsave2[,i]-mcsave2[,j];
+		  contsamp[,counter]=mcind[,i]-mcind[,j];
 		  contres[counter,1]=indres[i,1]-indres[j,1];
 		  tttt=contsamp[,counter];
           tempmn=tttt[+,]/mcsamps;
@@ -1019,9 +1023,10 @@ do i = 2+cppthmd to (1+cppthmd+mpairs*(1+xmint)) by (1+xmint);
 	  end;
 	end;
   end;
-	badboot = 0;
+
+  * Bootstrapping;
+  badboot = 0;
   if (mc ^= 1) then;do;
-  	
 	detcheck = j((mpairs-1)*(serial=1)+1,1,-999);
 	detsum = detcheck[+,];
     bootsamp=j(samples,mpairs+1+serind*(serial=1),0);
