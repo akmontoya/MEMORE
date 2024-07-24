@@ -1274,6 +1274,80 @@ do i = 2+cppthmd to (1+cppthmd+mpairs*(1+xmint)) by (1+xmint);
   end; *if (mc ^= 1);
  end; *3; *Close not 2 and not 3;
 
+if ((((model = 2)|(model = 3))|(anymod > 0))&(criterr = 0))then; do;
+	%dichot(modcount = Wcount, dat = moddat);
+	if((quantile=0)|(plot=1)) then; do;
+		modmeans = moddat[+,1:wcount]/N;
+		*print modmeans;
+		dmeans = diag(modmeans);
+		*print dmeans;
+		meansmat = j(N, Wcount,1)*dmeans;
+		temp = moddat[,1:Wcount]-meansmat 
+		modsds = sqrt((temp[+,]##2)/N-1);
+		print modsds;
+		dimmc = 3##(Wcount - dich[+,1])*(2##dich[+,1]);
+		modcomb = j(dimmc, Wcount, -999);
+		counter = 1;
+		last = dimmc;
+		do i = 1 to Wcount;
+			if(dich[i,1] = 0);
+			end;
+				do j = 1 to counter;
+					modcomb[(last*(j-1)+1):(last*j),i] = j(last/3, 1, modmeans[1,i]-modsds[1,i])||j(last/3, 1, modmeans[1,i])||j(last/3, 1, modmeans[1,i]+modsds[1,i]);
+				end;*do j = 1 to counter;
+				last = last/3;
+				counter = counter*3;
+			if(dich[i,1] ^= 0);
+				do j = 1 to counter;
+					modcomb[(last*(j-1)+1):(last*j),i] = j(last/2, 1, dich[i,2])||j(last/2, 1, dich[i,3]);
+				end; *do j = 1 to counter;
+				last = last/2;
+				counter = counter*2;
+			end; *if(dich[i,1] ^= 0);
+		end; *do i = 1 to Wcount;
+		plotdat = modcomb;
+	end; *if((quantile=0)|(plot=1));
+
+	if(quantile = 1)then; do;
+		perctls = {.10, .25, .50, .75, .90};
+		pctindx = round(perctls*N);
+		if (pctindx[1,1] < 1) then pctindx[1,1] = 1;
+		if (pctindx[1,5] > N) then pctindx[1,5] = N; 
+		modtemp = data[,1:wcount];
+		modsort = J(N, wcount, -999);
+		do i = 1 to wcount;
+		      modgrad=rank(modtemp[,i]);
+		      modsort[modgrad,i]=moddat[,i];
+		end; *do i = 1 to wcount;
+		pctnum = modsort[pctindx,];
+		dimmc = 5##(wcount - dich[+,1])*2##(dich[+,1]);
+		modcomb = J(dimmc, wcount, -999);
+		counter = 1;
+		last = dimmc;
+		do i = 1 to wcount;
+			if (dich[i,1] = 0) then; do;
+				do j = 1 to counter;
+					modcomb[(last*(j-1)+1):(last*j),i] = J(last/5, 1, pctnum[1,i]) // J(last/5,1,pctnum[2,i]) // J(last/5, 1, pctnum[3,i]) // J(last/5, 1, pctnum[4,i]) // J(last/5, 1, pctnum[5,i]);
+				end; *do j = 1;
+			last = last/5;
+			counter = counter*5;
+			end; *if (dich[i,1] = 0);
+			if (dich[i,1] = 1) then; do;
+				do j = 1 to counter;
+					modcomb[(last*(j-1)+1):(last*j),i] = J(last/2, 1, dich[i,2]) // J(last/2,1,dich[i,3]);
+				end;
+			last = last/2;
+			counter = counter*2;
+			end; *if (dich[i,1] = 1);
+		end; *do i = 1;
+		plotdat = modcomb;
+	end; *if(quantile = 1);
+end; *if ((((model = 2)|(model = 3))|(anymod > 0))&(criterr = 0));
+
+
+
+
+
 if ((model = 2) | (model = 3)) then; do; *4;
 	wnamemat = t(wnames) || J(wcount, 1, " ");
 	modres = J(ncol(bcpdes), 6, -999);
