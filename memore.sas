@@ -1424,6 +1424,15 @@ if(apathmod=1) then; do;
 		if(quantile^=0)then;do;
 			plotddat[,Wcount+1+j] = plotdes*avec;
 		end; *if(quantile^=0);
+		if (jn=1) then; do;
+			%JNprobe(coefOne = (avec[1,1]), coefTwo = (avec[2,1]), seOne = (ase[1,1]), seTwo = (ase[2,2]), cov = (ase[2,1]), critt = tcrita, dfJN = m3df2);
+			aNumJN[j,] = NumJN;
+			if(NumJN>0)then;do;
+				aJNres[(1+22*(j-1)):(20+NumJN+22*(j-1)),] = JNres;
+				aJNsoln[j,1:NumJN] = t(JNSoln);
+				aPcntabv[j,1:NumJN] = Pcntabv;
+			end; *if(NumJN>0);
+		end; *if (jn=1);
 	end; *do j = 1 to Mpairs;
 end; *if(apathmod=1);
 
