@@ -3,7 +3,14 @@
 %memore(y = y1 y2, m = m11 m12 m21 m22, model = 1, data = parallelserial, save = serial, serial = 1);
 %memore(y = y1 y2, m = m11 m12 m21 m22 m31 m32, model = 1, data = parallelserial, save = parallel);
 
-%sobel(a=1.44, sea = 0.222, b = 0.402, seb = 0.070);
+proc iml;
+aval = 1.44;
+seaval = 0.222;
+bval = 0.402;
+sebval = 0.070;
+%sobel(a=aval, sea = seaval, b = bval, seb = sebval);
+print sobelres;
+quit;
 %cdfinvt(p=.05, df = 1000);
 %dichot(modcount=5, dat = 1);
 
@@ -40,8 +47,12 @@ print moddat;
 quit;
 
 
-%memore(y = y1 y2, m = m11 m12, w = m21, model = 4, center = 2, plot = 1, data = parallelserial);
+%memore(y = y1 y2, m = m11 m12 m21 m22 m31 m32, serial = 1, model = 1, normal = 1, mc = 1, data = parallelserial);
 
-%memore(y = y1 y2, m = m11 m12, w = m21, model = 4, mc = 1, samples = 1000, data = parallelserial);
+%memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, normal = 1, mc = 1, model = 4, contrast = 1, samples = 1000, data = parallelserial);
+
+%memore(y = y1 y2, m = m11 m12, w = m21, model = 4, mc = 1, jn =1 , samples = 1000, data = parallelserial);
 
 %memore(y = Y1 Y2, m = M1_1 M1_2 M2_1 M2_2 M3_1 M3_2 M4_1 M4_2 M5_1 M5_2, model = 1, normal = 1, mc = 1, contrast = 1, data = work.FakeSerialData);
+
+%memore(y = y1 y2, w = m21 m22 m31 m32, model = 2, data = parallelserial);
