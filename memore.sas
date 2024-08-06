@@ -2263,6 +2263,38 @@ if(bpathmod=1)then; do;
   end; *do j = 1 to mpairs;
 end; *if(bpathmod=1);
 
+if(dpathmod=1)then; do;
+	print "-------------------------------------------------------------------------------------------------";
+	do j = 1 to mpairs;
+		if(mpairs = 1) then condnam[,2] = "Mavg"//"Ydiff"//wnamemat[1,1];
+		if(mpairs >1) then condnam[,2] = temp7[1,j]//"Ydiff"//wnamemat[1,1];
+		condnam[,3] = "(XM)"//"(Y)"//"(W)";
+		print condnam [label = "Conditional Effect of Focal Predictor on Outcome at values of Moderator(s)"];
+		print (MAYgWres[(j*dimmc-(dimmc-1)):(j*dimmc),]) [title = "" colname = XYgWlabs format = &decimals];
+		if (quantile = 1) then print "Values for quantitative moderators are 10th, 25th, 50th, 75th, and 90th percentile.";
+		if (quantile = 0) then print "Values for quantitative moderators are the mean and plus/minus one SD from the mean.";
+		if (dich[+,1] > 0) then print  "Values for dichotomous moderators are the two values of the moderator.";
+		if(setswv>0) then; do;
+			print condnam [label = "Conditional effect of Focal Predictor on Outcome at requested values of moderator(s)"];
+			print MAYgWvres[(j*setswv-(setswv-1)):(j*setswv),] [label = " " colname = XYgWlabs format = &decimals];
+		if(xmint=1) then print "Values for mediator averages (Mavg) are the conditional values based on the values of the moderator.";
+	end; *if(setswv>0);
+	if(jn=1) then; do;
+		print "                                JOHNSON-NEYMAN PROCEDURE: d-paths (Mavg --> Y)                                ";
+		if(dNumJN[j,1] ^= 0) then; do;
+			print (dJNsoln[j,1:dNumJN[j,1]|| dpcntabv[j,1:dNumJN[j,1]]) [label = "Moderator value(s) defining Johnson-Neyman significance region(s) and percent of observed data above value:" colname = {"Value" "% Abv"} format = &decimals];
+			print (dJNRes[(1+22*(j-1)):(20+dNumJN[j,1]+22*(j-1)),]) [label = "Conditional Effect of Mavg on Y at values of moderator, controlling for M" colname = XYgWlabs rowname = " " format = &decimals];
+		end; *if(dNumJN[j,1] ^= 0);
+		if (dNumJN[j,1] = 0) then print "There are no statistically significant transition points within the observed range of data.";
+	end; *if(jn=1);
+	print "-------------------------------------------------------------------------------------------------";
+  end; *do j = 1 to mpairs;
+end; *if(dpathmod=1);
+
+if((cppthmd = 1)|(bpathmod=1)|(dpathmod=1)) then; do;
+	print df2 [label = "Degrees of freedom for all conditional effects:"];
+end; *if((cppthmd = 1)|(bpathmod=1)|(dpathmod=1));
+
 
 print "-------------------------------------------------------------------------------------------------";
 if (model = 1) then; do; *6;
