@@ -2222,7 +2222,7 @@ if(cppthmd = 1) then; do;
 	XYgWcMlb = XYgWcMlb||coeflabs;
 	condnam[,2] = "'X'"//"Ydiff"//wnamemat[1,1];
 	print condnam [label = "Conditional Effect of Focal Predictor on Outcome at values of Moderator(s)"];
-	print XYgWcMrs [label = " " colname = XYgWcMlb format = &decimals];
+	print XYgWcMrs [colname = XYgWcMlb rowname = " " format = &decimals];
 	if (quantile = 1) then print "Values for quantitative moderators are 10th, 25th, 50th, 75th, and 90th percentile.";
 	if (quantile = 0) then print "Values for quantitative moderators are the mean and plus/minus one SD from the mean.";
 	if (dich[+,1] > 0) then print  "Values for dichotomous moderators are the two values of the moderator.";
@@ -2304,7 +2304,6 @@ end; *if(dpathmod=1);
 if((cppthmd = 1)|(bpathmod=1)|(dpathmod=1)) then; do;
 	print df2 [label = "Degrees of freedom for all conditional effects:"];
 end; *if((cppthmd = 1)|(bpathmod=1)|(dpathmod=1));
-
 
 print "-------------------------------------------------------------------------------------------------";
 if (model = 1) then; do; *6;
