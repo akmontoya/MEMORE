@@ -51,7 +51,7 @@ quit;
 
 %memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, normal = 1, mc = 1, model = 4, contrast = 1, samples = 1000, data = parallelserial);
 
-%memore(y = y1 y2, m = m11 m12, w = m21, model = 4, mc = 1, jn =1 , samples = 1000, data = parallelserial);
+%memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, model = 4, mc = 1, jn =1 , samples = 1000, data = parallelserial);
 
 %memore(y = Y1 Y2, m = M1_1 M1_2 M2_1 M2_2 M3_1 M3_2 M4_1 M4_2 M5_1 M5_2, model = 1, normal = 1, mc = 1, contrast = 1, data = work.FakeSerialData);
 
