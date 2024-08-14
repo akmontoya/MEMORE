@@ -2462,7 +2462,6 @@ end; *if ((apathmod=1)|(bpathmod=1));
   contkey=contkey[2:nrow(contkey),];
   print contkey [label = "Contrast definitions:" rowname = contlab];
  end; *if ((contrast=1) & (mpairs > 1));
-
 if(anymod >0) then; do;
 	print "************************* INDICES OF MODERATION ************************************";
 	cresmat = cresmat[2:(1+Wcount), 1:3]||M4df2||cresmat[2:(1+Wcount),4:6];
@@ -2471,28 +2470,26 @@ if(anymod >0) then; do;
 		cpresmat = cpresmat[2:(1+Wcount),1:3]||df2||cpresmat[2:(1+Wcount),4:6];
 		print cpresmat [label = "Test of Moderation of the Direct Effect" rowname="W" colname=collab format=&decimals];
 	end; *if(cppthmd=1);
-	if((apathmod=1)|(bpathmod =  1)) then; do;
-		if(dich(+,1)>0) then; do;
+	if((apathmod=1)|(bpathmod=1)) then; do;
+		if(dich[+,1]>0) then; do;
 			print immres [rowname = mlab colname = indlabs format = &decimals label = "Index of Moderated Mediation for each Indirect Effect"];
-		end; *if(dich(+,1)>0);
-		if(dich(+,1)=0) then; do;
+		end; *if(dich[+,1]>0);
+		if(dich[+,1]=0) then; do;
 			if ((apathmod=1)&(bpathmod=1)) then; do;
-				print "The INDEX OF MODERATED MEDIATION is not generated for this model because the indirect effect is a non-linear function of the moderator."
+				print "The INDEX OF MODERATED MEDIATION is not generated for this model because the indirect effect is a non-linear function of the moderator.";
 			end; *if ((apathmod=1)&(bpathmod=1));
-			if ((apathmod=1)|(bpathmod=1)) then; do;
-				incides = 2||4||6||8||10||12||14||16||18||20;
+			if ((apathmod=0)|(bpathmod=0)) then; do;
+				indices = 2//4//6//8//10//12//14//16//18//20;
 				if (mc = 0) then immres = bootres[indices[1:Mpairs],];
 				if (mc = 1) then immres = MCres[indices[1:Mpairs],];
 				print immres [rowname = mlab colname = indlabs format = &decimals label = "Index of Moderated Mediation for each Indirect Effect"];
-			end; *if ((apathmod=1)|(bpathmod=1));
-		end; *if(dich(+,1)=0);
+			end; *if ((apathmod=0)|(bpathmod=0));
+		end; *if(dich[+,1]=0);
 	end; *if((apathmod=1)|(bpathmod =  1));
-end;*if(anymod >0);
-end;*if((model=1)|(model>=4));
 
-if (plot = 1) then; do;
+
+	if (plot = 1) then; do;
 		print "************************************ PLOTS ******************************************";
-		
 		plotcol = wnames;
 		if(apathmod = 1) then; do;
 			if(mpairs = 1) then plotcol = plotcol||"MdiffHAT";
@@ -2548,7 +2545,9 @@ if (plot = 1) then; do;
 			end; *if (mpairs >1);
 		end; *if(dpathmod = 1);
 	end; *if(plot=1);
+end;*if(anymod >0);
 
+end;*if((model=1)|(model>=4));
 	
 if ((model = 2) | (model = 3)) then; do; *11;
 	print "****************************************************************************************";
