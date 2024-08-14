@@ -2462,19 +2462,18 @@ end; *if ((apathmod=1)|(bpathmod=1));
   contkey=contkey[2:nrow(contkey),];
   print contkey [label = "Contrast definitions:" rowname = contlab];
  end; *if ((contrast=1) & (mpairs > 1));
-end;*if((model=1)|(model=3));
 
 if(anymod >0) then; do;
 	print "************************* INDICES OF MODERATION ************************************";
-	cresmat = cresmat[2:(1+Wcount), 1:3]]||M4df2||cresmat[2:(1+Wcount),4:6];
-	print cresmat [label = "Test of Moderation of the Total Effect" rowname="W" colnam =collab format=&decimals];
+	cresmat = cresmat[2:(1+Wcount), 1:3]||M4df2||cresmat[2:(1+Wcount),4:6];
+	print cresmat [label = "Test of Moderation of the Total Effect" rowname="W" colname =collab format=&decimals];
 	if(cppthmd=1) then; do;
-		cpresmat = cpresmat[2:(1+Wcount),1:3]||df2||cpresmat[2,(1+Wcount),4:6];
+		cpresmat = cpresmat[2:(1+Wcount),1:3]||df2||cpresmat[2:(1+Wcount),4:6];
 		print cpresmat [label = "Test of Moderation of the Direct Effect" rowname="W" colname=collab format=&decimals];
 	end; *if(cppthmd=1);
 	if((apathmod=1)|(bpathmod =  1)) then; do;
 		if(dich(+,1)>0) then; do;
-			print immres [rowname = mlab colname = indlabs format = &decimals title = "Index of Moderated Mediation for each Indirect Effect"];
+			print immres [rowname = mlab colname = indlabs format = &decimals label = "Index of Moderated Mediation for each Indirect Effect"];
 		end; *if(dich(+,1)>0);
 		if(dich(+,1)=0) then; do;
 			if ((apathmod=1)&(bpathmod=1)) then; do;
@@ -2484,43 +2483,73 @@ if(anymod >0) then; do;
 				incides = 2||4||6||8||10||12||14||16||18||20;
 				if (mc = 0) then immres = bootres[indices[1:Mpairs],];
 				if (mc = 1) then immres = MCres[indices[1:Mpairs],];
-				print immres [rowname = mlab colname = indlabs format = &decimals title = "Index of Moderated Mediation for each Indirect Effect"];
+				print immres [rowname = mlab colname = indlabs format = &decimals label = "Index of Moderated Mediation for each Indirect Effect"];
 			end; *if ((apathmod=1)|(bpathmod=1));
 		end; *if(dich(+,1)=0);
 	end; *if((apathmod=1)|(bpathmod =  1));
+end;*if(anymod >0);
+end;*if((model=1)|(model>=4));
 
-	if (plot = 1) then; do;
+if (plot = 1) then; do;
 		print "************************************ PLOTS ******************************************";
-
-		plotcol = wnames|| "Ydiff" || ynames[1,1] || ynames[1,2];
+		
+		plotcol = wnames;
+		if(apathmod = 1) then; do;
+			if(mpairs = 1) then plotcol = plotcol||"MdiffHAT";
+			if(mpairs >1) then; do;
+				pctemp = "M1diffHAT"||"M2diffHAT"||"M3diffHAT"||"M4diffHAT"||"M5diffHAT"||"M6diffHAT"||"M7diffHAT"||"M8diffHAT"||"M9diffHAT"||"M10diffHAT";
+				plotcol = plotcoll || pctemp[1:Mpairs];
+			end; *if(mpairs >1);
+		end; *if(apathmod = 1);
+		plotcol = plotcol|| "Ydiff";
 		print "Data for visualizing conditional effect of X on Y at values of W";
 		if(apathmod = 1) then; do;
 			print "Data for visualizing conditional effect of X on M at values of W";
 		end;
-		if (center = 1) then print "Note: All moderator values have been centered.";
-
 		print plotdat [label = "" format = &decimals rowname = " " colname = plotcol];
-
-		if(apathmod=1) then; do;
-			plotcol = wnames|| "Mdiff" || mnames[1,1] || mnames[1,2];
-			print plotdat [label = "Data for visualizing conditional effect of X on M at values of W." format = &decimals rowname = " " colname = plotcol];
-		end; *if(apathmod=1);
-		
-
-		
-		print plotdat [label = "Data for visualizing conditional effect of 'X' on Y." format = &decimals rowname = " " colname = plotcol];
 		if (center = 1) then print "Note: All moderator values have been centered.";
-	end;
+		if (center = 2) then print "Note: All continuous moderator values have been centered.";
+		if(bpathmod = 1) then; do;
+			print "------------------------------------------------------------------------------";
+			print "Data for visualizing conditional effect of M (Mdiff) on Y at values of W";
+			if (mpairs = 1) then bplotlab = wnames||"Mdiff"||"YdiffHAT";
+			if (mpairs >1) then; do;
+				bptemp = "M1diff"||"M2diff"||"M3diff"||"M4diff"||"M5diff"||"M6diff"||"M7diff"||"M8diff"||"M9diff"||"M10diff";
+				do i = 1 to mpairs;
+					print (mnames[1,(2*i-1):(2*i)]) [label = "The following section applies to the mediator defined by"];
+					bplotlab = wnames||bptemp[i]||"YdiffHAT";
+					print (bplotdat[(1+(i-1)*(3*(3-dich[+,1]))):(i*(3*(3-dich[+,1]))),]) [label = " " format = &decimals colname = bplotlab];
+				end; *do i = 1 to mpairs;
+			end; *if (mpairs >1);
+			if (center = 1) then print "Note: All moderator values have been centered.";
+			if (center = 2) then print "Note: All continuous moderator values have been centered.";
+		end; *if(bpathmod = 1);
+		if(cppthmd =1) then; do;
+			print "------------------------------------------------------------------------------";
+			cppltlab = wnames || "YdiffHAT";
+			print cppltdat [label = "Data for visualizing conditional direct effect of X on Y at values of W" format =  &decimals colname = cppltlab];
+			if (center = 1) then print "Note: All moderator values have been centered.";
+			if (center = 2) then print "Note: All continuous moderator values have been centered.";
+			if (xmint = 1) then print "All mediator averages are conditioned on their predicted values based on W.";
+		end; *if(cppthmd =1);
+		if(dpathmod = 1) then; do;
+			print "------------------------------------------------------------------------------";
+			print "Data for visualizing differential conditional effect of M (Mavg) on Y at values of W";
+			if (center = 1) then print "Note: All moderator values have been centered.";
+			if (center = 2) then print "Note: All continuous moderator values have been centered.";
+			if (mpairs = 1) then dplotlab = wnames||"Mavg"||"YdiffHAT";
+			if (mpairs >1) then; do;
+				dptemp = "M1avg"||"M2avg"||"M3avg"||"M4avg"||"M5avg"||"M6avg"||"M7avg"||"M8avg"||"M9avg"||"M10avg";
+				do i = 1 to mpairs;
+					print (mnames[1,(2*i-1):(2*i)]) [label = "The following section applies to the mediator defined by"];
+					dplotlab = wnames||dptemp[i]||"YdiffHAT";
+					print (dplotdat[(1+(i-1)*(3*(3-dich[+,1]))):(i*(3*(3-dich[+,1]))),]) [label = "" format = &decimals colname = dplotlab];
+				end; *do i = 1 to mpairs;
+			end; *if (mpairs >1);
+		end; *if(dpathmod = 1);
+	end; *if(plot=1);
 
-
-
-
-end;*if(anymod >0);
 	
-
-
-
-
 if ((model = 2) | (model = 3)) then; do; *11;
 	print "****************************************************************************************";
 	coeflabs = {"Effect" "SE" "t" "p" "LLCI" "ULCI"};
