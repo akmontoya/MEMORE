@@ -28,7 +28,6 @@
 p0=-.322232431088;p1=-1;p2=-.342242088547;p3=-.0204231210245;p4=-.0000453642210148;
 q0=.0993484626060;q1=.588581570495;q2=.531103462366;q3=.103537752850;q4=.0038560700634;
 ppv=&p;if (&p > .5) then;do;ppv=1-&p;end;
-print (-2*log(ppv));
 y5=sqrt(-2*log(ppv));
 xp=y5+((((y5*p4+p3)*y5+p2)*y5+p1)*y5+p0)/((((y5*q4+q3)*y5+q2)*y5+q1)*y5+q0);
 if (&p <= .5) then;do;xp=-xp;end;
@@ -1715,7 +1714,7 @@ if(((apathmod = 1)|(bpathmod=1))&(criterr=0)) then; do;
 		end; *if(apathmod=1);
 		if(apathmod=0) then; do;
 			if(mc=0) then casamps = bootsave[,2+i];
-			if (mc = 1) then casamps = mcsamps[,i];
+			if (mc = 1) then casamps = mcsave[,i];
 			casamps = casamps*j(1,dimmc+setswv,1);
 			condas = j((dimmc+setswv), 1, aresmat[i,1]);
 		end; *if(apathmod=0);
@@ -1909,7 +1908,7 @@ end;
 end; *4; 
 	
 end; *1;
-print criterr;
+
 print "************************ MEMORE Procedure for SAS Version 3.0 *************************";
 print "Written by Amanda K. Montoya";
 print "Documentation available at akmontoya.com";
@@ -2033,7 +2032,7 @@ if ((model = 3) & (wcount > 1)) then; do;
 	compname = compname//intnames[(wcount +1):(wcount + nint),];
 end; *if ((model = 3) & (wcount > 1));
 
-print compname [label="Computed Variables:" rowname=temprnam];
+print compname [label="Computed Variables:" rowname=temprnam colname = ""];
 print n [label="Sample Size:"];
 if (&seed ^= 0) then;do;
   seedt=&seed;
@@ -2305,7 +2304,7 @@ if((cppthmd = 1)|(bpathmod=1)|(dpathmod=1)) then; do;
 	print df2 [label = "Degrees of freedom for all conditional effects:"];
 end; *if((cppthmd = 1)|(bpathmod=1)|(dpathmod=1));
 print "-------------------------------------------------------------------------------------------------";
-if((model=1)|(model=3)) then; do;
+if((model=1)|(model>=4)) then; do;
 	collab = "Effect"||"SE"||"t"||"df"||"p"||"LLCI"||"ULCI";
 	 rwnme=" ";
 	if(anymod = 0) then; do; 
@@ -2318,7 +2317,7 @@ if((model=1)|(model=3)) then; do;
 		if(setswv>0) then; do;
 			XYgWres = XYgWres//XYgWvres;
 		end; *if(setswv>0);
-		XYgWlabs = XYgWlabs[1:(ncol(XYgWlabs)-3)]|| "df"||XYgWlabs[(ncol(XYgWlabs)-2):ncol(XYgWlabs)];
+		XYgWlabs = XYgWlabs[1:(ncol(XYgWlabs)-3)]// "df"//XYgWlabs[(ncol(XYgWlabs)-2):ncol(XYgWlabs)];
 		XYgWres = XYgWres[,1:(ncol(XYgWres)-3)]|| j(nrow(XYgWres), 1, M4df2)||XYgWres[,(ncol(XYgWres)-2):ncol(XYgWres)];
 		print XYgWres [label = "Conditional Total Effect of X on Y at values of the Moderator(s)" colname = XYgWlabs rowname=rwnme format = &decimals];
 		if (quantile = 1) then print "Values for quantitative moderators are 10th, 25th, 50th, 75th, and 90th percentile.";
@@ -2327,15 +2326,15 @@ if((model=1)|(model=3)) then; do;
 		if(setswv>0) then print "Requested values for moderators included in table above.";
 	end; *if(anymod >0);
  if(cppthmd = 0) then; do;
- 	 cpresmat = t(cpresmat[1:3]) || df2 || t(cresmat[4:6]);
+ 	 cpresmat = cpresmat[1:3] // df2 // cpresmat[4:6];
  	 print cpresmat [label = "Direct effect of X on Y" colname=collab rowname = rwnme format = &decimals];
  end; * if(cppthmd = 0);
  if(cppthmd = 1) then; do;
  	if(setswv>0) then; do;
 		XYgWcMrs = XYgWcMrs//XYgWcMv;
 	end; *if(setswv>0);
-	XYgWcMlb = XYgWcMlb[1:(ncol(XYgWcMlb)-3)]|| "df"||XYgWcMlb[(ncol(XYgWcMlb)-2):ncol(XYgWcMlb)];
-	XYgWcMrs = XYgWcMrs[,1:(ncol(XYgWcMrs)-3)]|| j(nrow(XYgWcMrs, 1, df2)||XYgWcMrs[,(ncol(XYgWcMrs)-2):ncol(XYgWcMrs)];
+	XYgWcMlb = XYgWcMlb[1:(ncol(XYgWcMlb)-3)]// "df"//XYgWcMlb[(ncol(XYgWcMlb)-2):ncol(XYgWcMlb)];
+	XYgWcMrs = XYgWcMrs[,1:(ncol(XYgWcMrs)-3)]|| j(nrow(XYgWcMrs), 1, df2)||XYgWcMrs[,(ncol(XYgWcMrs)-2):ncol(XYgWcMrs)];
 	print XYgWcMrs [label = "Conditional Direct Effect of X on Y at values of the Moderator(s)" colname = XYgWcMlb rowname=rwnme format = &decimals];
 	if (quantile = 1) then print "Values for quantitative moderators are 10th, 25th, 50th, 75th, and 90th percentile.";
 	if (quantile = 0) then print "Values for quantitative moderators are the mean and plus/minus one SD from the mean.";
@@ -2358,7 +2357,7 @@ if((model=1)|(model=3)) then; do;
  mlab4 = {"Ind31" "Ind32" "Ind33" "Ind34" "Ind35" "Ind36" "Ind37" "Ind38" "Ind39" "Ind40"};
  mlab = mlab || mlab2 || mlab3 ||mlab4;
 
-if((apathmod=0)&(bpathmod=0) then; do;
+if((apathmod=0)&(bpathmod=0)) then; do;
 	 m2lab=mlab[1,1:(nrow(indres)-1)]||"Total";
 	 if (mpairs = 1) then; do;
 	 	print (indres[1,]) [label="Indirect Effect of X on Y through M" rowname=m2lab colname=indlabs format = &decimals];
@@ -2370,7 +2369,7 @@ if((apathmod=0)&(bpathmod=0) then; do;
    	 	clab={"Effect" "SE" "Z" "p"};
    		print normres [label = "Normal Theory Test for Indirect Effect" rowname=mlab colname=clab format=&decimals];
  	 end; *if (normal = 1);
-end; *if((apathmod=0)&(bpathmod=0);
+end; *if((apathmod=0)&(bpathmod=0));
 if ((apathmod=1)|(bpathmod=1)) then; do;
 	m2lab = mlab[1,1:mpairs]||"Total";
 	indlabsw = wnamemat[1,1]||indlabs;
@@ -2389,7 +2388,7 @@ if ((apathmod=1)|(bpathmod=1)) then; do;
 			condnam[1,2] = mlab[1,i];
 		end; *if(mpairs > 1) ;
 		print condnam [label = "Conditional Indirect Effect of X on Y through Mediator at values of the Moderator"];
-		print (cindres[(1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),]) [colname = indlabsW format = &decimals title = ""];
+		print (cindres[(1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),]) [colname = indlabsW format = &decimals label = ""];
 		if (quantile = 1) then print "Values for quantitative moderators are 10th, 25th, 50th, 75th, and 90th percentile.";
 		if (quantile = 0) then print "Values for quantitative moderators are the mean and plus/minus one SD from the mean.";
 		if (dich[+,1] > 0) then print  "Values for dichotomous moderators are the two values of the moderator.";
@@ -2465,7 +2464,59 @@ end; *if ((apathmod=1)|(bpathmod=1));
  end; *if ((contrast=1) & (mpairs > 1));
 end;*if((model=1)|(model=3));
 
+if(anymod >0) then; do;
+	print "************************* INDICES OF MODERATION ************************************";
+	cresmat = cresmat[2:(1+Wcount), 1:3]]||M4df2||cresmat[2:(1+Wcount),4:6];
+	print cresmat [label = "Test of Moderation of the Total Effect" rowname="W" colnam =collab format=&decimals];
+	if(cppthmd=1) then; do;
+		cpresmat = cpresmat[2:(1+Wcount),1:3]||df2||cpresmat[2,(1+Wcount),4:6];
+		print cpresmat [label = "Test of Moderation of the Direct Effect" rowname="W" colname=collab format=&decimals];
+	end; *if(cppthmd=1);
+	if((apathmod=1)|(bpathmod =  1)) then; do;
+		if(dich(+,1)>0) then; do;
+			print immres [rowname = mlab colname = indlabs format = &decimals title = "Index of Moderated Mediation for each Indirect Effect"];
+		end; *if(dich(+,1)>0);
+		if(dich(+,1)=0) then; do;
+			if ((apathmod=1)&(bpathmod=1)) then; do;
+				print "The INDEX OF MODERATED MEDIATION is not generated for this model because the indirect effect is a non-linear function of the moderator."
+			end; *if ((apathmod=1)&(bpathmod=1));
+			if ((apathmod=1)|(bpathmod=1)) then; do;
+				incides = 2||4||6||8||10||12||14||16||18||20;
+				if (mc = 0) then immres = bootres[indices[1:Mpairs],];
+				if (mc = 1) then immres = MCres[indices[1:Mpairs],];
+				print immres [rowname = mlab colname = indlabs format = &decimals title = "Index of Moderated Mediation for each Indirect Effect"];
+			end; *if ((apathmod=1)|(bpathmod=1));
+		end; *if(dich(+,1)=0);
+	end; *if((apathmod=1)|(bpathmod =  1));
 
+	if (plot = 1) then; do;
+		print "************************************ PLOTS ******************************************";
+
+		plotcol = wnames|| "Ydiff" || ynames[1,1] || ynames[1,2];
+		print "Data for visualizing conditional effect of X on Y at values of W";
+		if(apathmod = 1) then; do;
+			print "Data for visualizing conditional effect of X on M at values of W";
+		end;
+		if (center = 1) then print "Note: All moderator values have been centered.";
+
+		print plotdat [label = "" format = &decimals rowname = " " colname = plotcol];
+
+		if(apathmod=1) then; do;
+			plotcol = wnames|| "Mdiff" || mnames[1,1] || mnames[1,2];
+			print plotdat [label = "Data for visualizing conditional effect of X on M at values of W." format = &decimals rowname = " " colname = plotcol];
+		end; *if(apathmod=1);
+		
+
+		
+		print plotdat [label = "Data for visualizing conditional effect of 'X' on Y." format = &decimals rowname = " " colname = plotcol];
+		if (center = 1) then print "Note: All moderator values have been centered.";
+	end;
+
+
+
+
+end;*if(anymod >0);
+	
 
 
 
