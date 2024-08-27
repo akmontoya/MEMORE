@@ -1921,7 +1921,7 @@ end; *1;
 print "************************ MEMORE Procedure for SAS Version 3.0 *************************";
 print "Written by Amanda K. Montoya";
 print "Documentation available at akmontoya.com";
-print "****************************************************************************************";
+
 
 print "*************************** ANALYSIS NOTES AND WARNINGS ******************************";
 print "Check SAS log for errors.  Do not interpret output if errors are found.";
@@ -2045,10 +2045,30 @@ end; *if (criterr=0);
 end; *if ((model = 1)|(model > 3));
 
 
+if ((model ^= 1)&(center>0)) then; do;
+	%dichot(modcount = Wcount, dat = moddat);
+	if (wcount-(center=2)*dich[+,1])>0) then; do;
+		centvars = j(1, wcount-(center=2)*dich[+,1]), -999);
+		indx = 1;
+		do i = 1 to wcount;
+			if((center=1)|(dich[i,1] = 0)) then; do;
+				centvars[1,indx] = wnames[1,i];
+				indx = indx+1;
+			end; *if((center=1)|(dich[i,1] = 0));
+		end; *do i = 1 to wcount;
+		print centvars [label = "The following moderators were mean centered prior to analysis:"];
+	end; *if (wcount-(center=2)*dich[+,1])>0);
+	if ((wcount-(center=2)*dich[+,1])<=0) then; do;
+		print [label = "No moderators were mean centered prior to analysis"];
+	end; *if ((wcount-(center=2)*dich[+,1])<=0);
+end; *if ((model ^= 1)&(center>0)) ;
+print conf [label = "Level of confidence for all confidence intervals in output:"];	
+
+
 
 
 if (criterr = 0) then;do; *5;
-
+  print "****************************************************************************************";
   print model [label = "Model:"];
   varrlabs = {"Y="};
   if ((model ^= 1)&(Wcount = 1)) then; do;
@@ -2732,59 +2752,99 @@ end; *5;
 
 if (criterr=0) then;do;*9;
 if ((model = 1)|(model > 3)) then; do; *10;
+  savelab=j(1,totsav,"           ");
   blabs="b1"||"b2"||"b3"||"b4"||"b5"||"b6"||"b7"||"b8"||"b9"||"b10";
-  savelab=j(1,3*Mpairs+3+(cols+serind-mpairs+1)*(serial=1),"           ");
+  bwlabs="b1.1"||"b2.1"||"b3.1"||"b4.1"||"b5.1"||"b6.1"||"b7.1"||"b8.1"||"b9.1"||"b10.1";
+  bwintlabs="b1.2"||"b2.2"||"b3.2"||"b4.2"||"b5.2"||"b6.2"||"b7.2"||"b8.2"||"b9.2"||"b10.2";
+  awlabs="a1.0"||"a2.0"||"a3.0"||"a4.0"||"a5.0"||"a6.0"||"a7.0"||"a8.0"||"a9.0"||"a10.0";
+  awintlabs="a1.1"||"a2.1"||"a3.1"||"a4.1"||"a5.1"||"a6.1"||"a7.1"||"a8.1"||"a9.1"||"a10.1";
+  dlabs="d1"||"d2"||"d3"||"d4"||"d5"||"d6"||"d7"||"d8"||"d9"||"d10";
+  dwlabs="d1.1"||"d2.1"||"d3.1"||"d4.1"||"d5.1"||"d6.1"||"d7.1"||"d8.1"||"d9.1"||"d10.1";
+  dwintlabs="d1.2"||"d2.2"||"d3.2"||"d4.2"||"d5.2"||"d6.2"||"d7.2"||"d8.2"||"d9.2"||"d10.2";
+  if (mc = 0) then; do;
+  	savelab[1,1] = "c0";
+	counter = 2;
+  end; *if (mc = 0);
+  if (mc = 1) then counter = 1;
+  if ((anymod = 1) & (mc = 0)) then; do;
+  	savelab[1,counter] = "c1";
+	counter = counter + 1;
+  end; *if ((anymod = 1) & (mc = 0));
   if (serial = 0) then; do;
-	  do i=1 to mpairs;
-	    savelab[1,3*i]=mlab[1,i];
-	    if (mpairs = 1) then;do;
-	      savelab[1,3*i-1]="b";
-		  savelab[i,3*i-2]="a";
-	    end;
-	    if (mpairs ^= 1) then;do;
-		  savelab[1,3*i-1]=blabs[1,i];
-		  savelab[1,3*i-2]=alabs[1,i];
-	    end;
-	  end;
-	  savelab[1,(ncol(savelab)-2):(ncol(savelab))]="TotalIndirect"||"Direct"||"Total";
-  end;
-  if (serial = 1) then; do;
-  	savelab[1,1:3] = "a1"||"b1"||"Ind1";
-	do i = 2 to Mpairs;
-		savelab[1,(2*i):(2*i+1)] = blabs[1,i]||mlab[1,i];
-	end;
+  	if (apathmod = 0) then; do;
+		savelab[1,counter:(counter+mpairs-1)] = alabs[1, 1:Mpairs];
+		counter = counter+Mpairs;
+	end; *if (apathmod = 0);
+	if (apathmod = 1) then; do;
+		alabtemp = t(awlabs[1,1:Mpairs]||t(awintlabs[1,1:Mpairs]);
+		print alabtemp;
+		alabtemp = shape(alabtemp, 1, mpairs*2);
+		print alabtemp;
+		savelab[1,counter:(counter+2*mpairs-1)] = alabtemp;
+		counter = counter+2*mpairs;
+	end; *if (apathmod = 1);
+	if (mc = 0) then; do;
+		if(cppthmd = 0) then; do;
+			savelab[1,counter] = "cp";
+			counter = counter + 1;
+		end; *if(cppthmd = 0);
+		if (cppthmd = 1) then; do;
+			savelab[1,counter:(counter+1)] = "cp0"||"cp1";
+			counter = counter + 2;
+		end; *if (cppthmd = 1);
+	end; *if (mc = 0);
+	if (bpathmod = 0) then; do;
+		savelab[1,counter:(counter+mpairs-1)] = blabs[1,1:mpairs];
+		counter = counter+mpairs;
+	end; *if (bpathmod = 0);
+	if (bpathmod = 1) then; do;
+		savelab[1,counter:(counter+mpairs-1)] = bwlabs[1,1:mpairs];
+		counter = counter+mpairs;
+		savelab[1,counter:(counter+mpairs-1)] = bwintlabs[1,1:mpairs];
+		counter = counter+mpairs;
+	end; *if (bpathmod = 1);
+	if((xmint=1)&(mc=0)) then; do;
+		if (dpathmod = 0) then; do;
+			savelab[1,counter:(counter+mpairs-1)] = dlabs[1,1:mpairs];
+			counter = counter+mpairs;
+		end; *if (dpathmod = 0);
+		if (dpathmod = 1) then; do;
+			savelab[1,counter:(counter+mpairs-1)] = dwlabs[1,1:mpairs];
+			counter = counter + mpairs;
+			savelab[1,counter:(counter+mpairs-1)] = dwintlabs[1,1:pairs];
+			counter = counter + mpairs;
+		end; *if (dpathmod = 1);
+	end; *if((xmint=1)&(mc=0));
+end; *if (serial = 0);
+if (serial = 1) then; do;
+	savelab[1,1:2] = "c"||"a1";
 	if (xmint = 1) then; do;
-		serlab = 'a2'||'d1'||'f1'||'a3'||'d2'||'f2'||'d3'||'f3'||'a4'||'d4'||'f4'||'d5'||'f5'||'d6'||'f6'||'a5'||'d7'||'f7'||'d8'||'f8'||'d9'||'f9'||'d10'||'f10';
-		savelab[1,(2+2*mpairs):(1+2*mpairs+cols)] = serlab[1,1:cols];
-		savelab[1,(2+2*mpairs+cols):(1+2*mpairs+cols+serind)] = mlab[1,(nrow(indres) - serind):(nrow(indres)-1)];
-	end;
+		serlab = 'a2'||'f1'||'g1'||'a3'||'f2'||'g2'||'f3'||'g3'||'a4'||'f4'||'g4'||'f5'||'g5'||'f6'||'g6'||'a5'||'f7'||'g7'||'f8'||'g8'||'f9'||'g9'||'f10'||'g10';
+		savelab[1,3:(1+mpairs##2)] = serlab[1,1:(mpairs##2-1)];
+		savelab[1, 1+mpairs##2] = "cp";
+		savelab[1,(3+mpairs##2):(2+mpairs##2+mpairs)] = blabs[1,1:mpairs];
+		savelab[1, (3+mpairs##2+mpairs):(2+mpairs##2+2*mpairs)] = dlabs[1,1:mpairs];
+	end; *if (xmint = 1);
 	if (xmint = 0) then; do;
-		serlab = 'a2'||'d1'||'a3'||'d2'||'d3'||'a4'||'d4'||'d5'||'d6'||'a5'||'d7'||'d8'||'d9'||'d10';
-		savelab[1,(2+2*mpairs):(1+2*mpairs+cols)] = serlab[1,1:cols];
-		savelab[1,(2+2*mpairs+cols):(1+2*mpairs+cols+serind)] = mlab[1,(nrow(indres) - serind):(nrow(indres)-1)];
-	end;
-	savelab[1,(ncol(savelab)-2):(ncol(savelab))] = "TotalIndirect" || "Direct" || "Total";
+		serlab = 'a2'||'f1'||'a3'||'f2'||'f3'||'a4'||'f4'||'f5'||'f6'||'a5'||'f7'||'f8'||'f9'||'f10';
+		savelab[1, 3:(2+cols)] = serlabs[1, 1:cols];
+		savelab[1, 3+cols] = "cp";
+		savelab[1,(4+cols):(3+cols+mpairs)] = blabs[1,1:mpairs];
+	end; *if (xmint = 0);
+end; *if (serial = 1);
 
-end;
-
-  if ((savboot=1) & (mc = 1)) then;do;
-    savelab=savelab||"TotalIndirect";
-    create &save from mcsave [colname=savelab];
-    append from mcsave;
-  end;
-  if ((savboot=1) & (mc ^= 1)) then;do;
-    create &save from bootsave [colname=savelab];
+if ((mc = 1)&(&save = 1)) then; do;
+	savelab = savelab||"TotalInd";
+	create &save from mcsave [colname=savelab];
+end; *if ((mc = 1)&(&save = 1));
+if ((mc ^= 1)&(&save = 1)) then; do;
+	create &save from bootsave [colname=savelab];
     append from bootsave;
-  end;
-
-
+end; *if ((mc ^= 1)&(&save = 1));
 
 end; *10;
-	print conf [label = "Level of confidence for all confidence intervals in output:"];
-	if (((model = 2) | (model = 3))&(center = 1)) then; do;
-	  centvars = wnames;
-	  print centvars [label = "The following variables were mean centered prior to analysis:"];
-	end;
+
+	
 end;*9;
 
 quit;
