@@ -2598,6 +2598,7 @@ if ((model = 2) | (model = 3)) then; do; *11;
 		plotcol = wnames|| "Ydiff" || ynames[1,1] || ynames[1,2];
 		print plotdat [label = "Data for visualizing conditional effect of 'X' on Y." format = &decimals rowname = " " colname = plotcol];
 		if (center = 1) then print "Note: All moderator values have been centered.";
+		if (center = 2) then print "Note: All continuous moderator values have been centered.";
 	end;
 
 end;*11;
