@@ -51,7 +51,8 @@ quit;
 
 %memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, normal = 1, mc = 1, model = 4, contrast = 1, samples = 1000, data = parallelserial);
 
-%memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, model = 4, plot = 1, jn=1, samples = 1000, data = parallelserial);
+%memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, model = 4, plot = 1, jn=1, xmint = 0, samples = 1000, data = parallelserial, save = est3);
+%memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, model = 4, plot = 1, jn=1, xmint = 0, mc = 1, samples = 1000, data = parallelserial, save = est4);
 %memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, model = 7, plot = 1, jn=1, samples = 1000, data = parallelserial);
 %memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, model = 8, plot = 1, jn=1, samples = 1000, data = parallelserial);
 
