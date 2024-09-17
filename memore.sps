@@ -1401,7 +1401,8 @@ DO IF (criterr = 0).
          COMPUTE indres(nrow(indres),1) = csum(indres).
          COMPUTE bootsort = bootsamp. 
          COMPUTE seboots = MAKE(nrow(indres), 1, 0).  
-         COMPUTE bccires = MAKE(nrow(indres, 4, -999). 
+         COMPUTE bccires = MAKE(4, ncol(bootsamp), 0). 
+         print bccires. 
          COMPUTE BootLLCI = MAKE(1,ncol(bootsamp),0). 
          COMPUTE BootULCI = MAKE(1,ncol(bootsamp),0). 
          COMPUTE zalpha2 = sqrt(-2*ln(alpha/2)).
@@ -1415,7 +1416,7 @@ DO IF (criterr = 0).
                 COMPUTE bccires(2,i) = bccires(1,i). 
                 DO IF (bccires(1,i) > .5). 
                    COMPUTE bccires(2,i) = 1-bccires(1,i). 
-                END IF. 
+                END IF.
                 COMPUTE bccires(3,i) = sqrt(-2*ln(bccires(2,i))). 
                 COMPUTE bccires(4,i) = bccires(3,i)+((((bccires(3,i)*p4+p3)*bccires(3,i)+p2)*bccires(3,i)+p1)*bccires(3,i)+p0)/((((bccires(3,i)*q4+q3)*bccires(3,i)+q2)*bccires(3,i)+q1)*bccires(3,i)+q0).
                 DO IF (bccires(1,i) <= .5). 
@@ -1433,14 +1434,16 @@ DO IF (criterr = 0).
                 END IF. 
                 COMPUTE BootLLCI(1,i) = bootsort(LCII,i). 
                 COMPUTE BootULCI(1,i) = bootsort(UCII,i). 
-            END IF.  
-         END LOOP. 
+                print bccires. 
+            END IF. 
+         END LOOP.
          DO IF (bc <>1). 
              COMPUTE BootLLCI = bootsort(LCII, :). 
              COMPUTE BootULCI = bootsort(UCII, :).
-         END IF. 
+         END IF.  
          COMPUTE BootCI = {t(bootllci),t(bootulci)}. 
          COMPUTE bootres = {indres, seboots, bootci}.
+         print bootres. 
 
          DO IF  (contrast = 1) AND (Mpairs >1). 
                  COMPUTE bccicont = MAKE(4,ncol(contsamp), 0).
@@ -1475,18 +1478,19 @@ DO IF (criterr = 0).
                        COMPUTE ContLLCI(1,i) = contsort(LCII,i). 
                        COMPUTE ContULCI(1,i) = contsort(UCII,i).
                  END IF. 
-                 END LOOP. 
+                 END LOOP.  
                  DO IF (bc <>1). 
                      COMPUTE ContLLCI = contsort(LCII, :). 
                      COMPUTE ContULCI = contsort(UCII, :). 
                  END IF. 
                  COMPUTE ContCI = {t(contllci),t(contulci)}. 
                  COMPUTE contres(:,3:4) = contCI.  
-         END IF. *DO IF  (contrast = 1) AND (Mpairs >1).
+         END IF. 
     END IF. 
-    *close MC <> 1. 
+    *close MC <> 1.
 END IF. 
 *close Not 2 and Not 3.  
+
 
     DO IF ((((model = 2) OR (model = 3)) OR (anymod > 0)) AND (criterr = 0)). 
        DICHOT modcount = Wcount /dat = moddat. 
@@ -3084,6 +3088,9 @@ LOOP i = 1 to nrow(runnotes).
        PRINT /title = "       Check that variables have non-zero variance and are not perfectly correlated with each other.".    
    ELSE IF (runnotes(i,1) = 30). 
       PRINT /title = "NOTE: Plotting option only available for models with moderators. No plots generated.".
+   ELSE IF (runnotes(i,1) = 31). 
+      PRINT /title = "NOTE: Both Monte Carlo Confidence Interval and Bias-Correction Bootstrap ". 
+      PRINT /title = "       Confidence Interval were selected. Monte Carlo CI was calculated." /space = 0.
    END IF. 
 END LOOP. 
 
@@ -3212,4 +3219,4 @@ END IF.
 
 end matrix. 
 !ENDDEFINE. 
-restore. 
+restore. COMMENT BOOKMARK;LINE_NUM=1409;ID=1.
