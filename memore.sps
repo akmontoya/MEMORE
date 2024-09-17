@@ -174,7 +174,7 @@ define JNprobe (coefone = !charend('/') /coeftwo = !charend('/') /seone = !chare
 !enddefine. 
 
 DEFINE MEMORE (Y = !charend('/') /M = !charend('/') !default(xxxxxxx)/W = !charend('/') !default(xxxxxxx)/Conf = !charend('/') !default(95) /mc = !charend('/') !default(0) 
-   /samples = !charend('/') !default(5000) /normal = !charend('/') !default(0) /decimals=!charend('/') !default(F10.4) /save = !charend('/') !default(0)
+   /samples = !charend('/') !default(5000) /normal = !charend('/') !default(0) /decimals=!charend('/') !default(F10.4) /save = !charend('/') !default(0) /bc = !charend('/') !default(0)
    /seed = !charend('/') !default(random) /contrast = !charend('/') !default(0) /xmint = !charend('/') !default(1) /serial = !charend('/') !default(0) /model = !charend('/') !default(1) /jn = !charend('/') !default(0) 
    /plot = !charend('/') !default(0) /quantile = !charend('/') !default(0) /center = !charend('/') !default(0) /wmodval1 = !charend('/') !default(999.99) /wmodval2 = !charend('/') !default(999.99)
    /wmodval3 = !charend('/') !default(999.99)). 
@@ -182,7 +182,7 @@ set mxloop = 100000000.
 set seed = !seed. 
    
 matrix. 
-COMPUTE runnotes = MAKE(30,1,0). 
+COMPUTE runnotes = MAKE(31,1,0). 
 COMPUTE criterr = 0.  
 COMPUTE model = !model. 
 COMPUTE modelmt2 = {1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16; 17; 18}. 
@@ -239,6 +239,7 @@ COMPUTE quantile = (!quantile = 1).
 COMPUTE contrast = (!contrast = 1). 
 COMPUTE normal = (!normal = 1). 
 COMPUTE xmint = (!xmint = 1). 
+COMPUTE bc = (!bc = 1).
 
 DO IF ((model = 1) AND (plot = 1)). 
     COMPUTE plot = 0. 
@@ -471,6 +472,11 @@ COMPUTE Conf = !Conf.
 DO IF (!Conf < 50 OR !Conf > 99.99). 
    COMPUTE Conf = 95. 
    COMPUTE runnotes (5, 1) = 5. 
+END IF. 
+
+DO IF (mc = 1 AND bc = 1).  
+   COMPUTE runnotes(31,1) = 31. 
+   COMPUTE bc = 0. 
 END IF.  
 
 DO IF (contrast = 1 AND (Mcount/2) = 1) AND (model = 1). 
@@ -1395,6 +1401,7 @@ DO IF (criterr = 0).
          COMPUTE indres(nrow(indres),1) = csum(indres).
          COMPUTE bootsort = bootsamp. 
          COMPUTE seboots = MAKE(nrow(indres), 1, 0).  
+         COMPUTE bccires = MAKE(nrow(indres, 4, -999). 
          COMPUTE BootLLCI = MAKE(1,ncol(bootsamp),0). 
          COMPUTE BootULCI = MAKE(1,ncol(bootsamp),0). 
          COMPUTE zalpha2 = sqrt(-2*ln(alpha/2)).
@@ -1403,11 +1410,37 @@ DO IF (criterr = 0).
             COMPUTE bootgrad = grade(bootsamp(:,i)). 
             COMPUTE bootsort(bootgrad,i) = bootsamp(:,i). 
             COMPUTE seboots(i,1) = sqrt(csum((bootsort(:,i)-(csum(bootsort(:,i))/samples))&**2)/(samples-1)).
+            DO IF (bc = 1). 
+                COMPUTE bccires(1,i) = csum(bootsamp(:,i)<indres(i,1))/samples.
+                COMPUTE bccires(2,i) = bccires(1,i). 
+                DO IF (bccires(1,i) > .5). 
+                   COMPUTE bccires(2,i) = 1-bccires(1,i). 
+                END IF. 
+                COMPUTE bccires(3,i) = sqrt(-2*ln(bccires(2,i))). 
+                COMPUTE bccires(4,i) = bccires(3,i)+((((bccires(3,i)*p4+p3)*bccires(3,i)+p2)*bccires(3,i)+p1)*bccires(3,i)+p0)/((((bccires(3,i)*q4+q3)*bccires(3,i)+q2)*bccires(3,i)+q1)*bccires(3,i)+q0).
+                DO IF (bccires(1,i) <= .5). 
+                   COMPUTE bccires(4,i) = -bccires(4,i). 
+                END IF. 
+                COMPUTE BCLLII = (cdfnorm(2*bccires(4,i)-zalpha2))*samples.
+                COMPUTE BCUCII = (cdfnorm(2*bccires(4,i)+zalpha2))*samples.
+                COMPUTE LCII = rnd(BCLLII). 
+                COMPUTE UCII = trunc(BCUCII)+1. 
+                DO IF (LCII < 1 OR UCII > samples). 
+                   COMPUTE runnotes(4, 1) = 4.  
+                   COMPUTE criterr = 1. 
+                   COMPUTE LCII = 1. 
+                   COMPUTE UCII = samples.
+                END IF. 
+                COMPUTE BootLLCI(1,i) = bootsort(LCII,i). 
+                COMPUTE BootULCI(1,i) = bootsort(UCII,i). 
+            END IF.  
          END LOOP. 
-         COMPUTE BootLLCI = bootsort(LCII, :). 
-         COMPUTE BootULCI = bootsort(UCII, :).
+         DO IF (bc <>1). 
+             COMPUTE BootLLCI = bootsort(LCII, :). 
+             COMPUTE BootULCI = bootsort(UCII, :).
+         END IF. 
          COMPUTE BootCI = {t(bootllci),t(bootulci)}. 
-         COMPUTE bootres = {indres, seboots, bootci}.   
+         COMPUTE bootres = {indres, seboots, bootci}.
 
          DO IF  (contrast = 1) AND (Mpairs >1). 
                  COMPUTE contsort = contsamp. 
