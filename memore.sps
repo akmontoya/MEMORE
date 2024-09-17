@@ -1443,6 +1443,7 @@ DO IF (criterr = 0).
          COMPUTE bootres = {indres, seboots, bootci}.
 
          DO IF  (contrast = 1) AND (Mpairs >1). 
+                 COMPUTE bccicont = MAKE(4,ncol(contsamp), 0).
                  COMPUTE contsort = contsamp. 
                  COMPUTE ContLLCI = MAKE(1,ncol(contsamp),0). 
                  COMPUTE ContULCI = MAKE(1,ncol(contsamp),0). 
@@ -1450,12 +1451,38 @@ DO IF (criterr = 0).
                     COMPUTE contgrad = grade(contsamp(:,i)). 
                     COMPUTE contsort(contgrad,i) = contsamp(:,i). 
                     COMPUTE contres(i,2) = sqrt(csum((contsort(:,i)-(csum(contsort(:,i))/samples))&**2)/(samples-1)).  
+                    DO IF (bc = 1). 
+                       COMPUTE bccicont(1,i) = csum(contsamp(:,i)<contres(i,1))/samples. 
+                       COMPUTE bccicont(2,i) = bccicont(1,i). 
+                       DO IF (bccicont(1,i) > .5). 
+                          COMPUTE bccicont(2,i) = 1-bccicont(1,i). 
+                       END IF. 
+                       COMPUTE bccicont(3,i) = sqrt(-2*ln(bccicont(2,i))). 
+                       COMPUTE bccicont(4,i) = bccicont(3,i)+((((bccicont(3,i)*p4+p3)*bccicont(3,i)+p2)*bccicont(3,i)+p1)*bccicont(3,i)+p0)/((((bccicont(3,i)*q4+q3)*bccicont(3,i)+q2)*bccicont(3,i)+q1)*bccicont(3,i)+q0).
+                       DO IF (bccicont(1,i) <= .5). 
+                          COMPUTE bccicont(4,i) = -bccicont(4,i). 
+                       END IF. 
+                       COMPUTE CBCLLII = (cdfnorm(2*bccicont(4,i)-zalpha2))*samples.
+                       COMPUTE CBCUCII = (cdfnorm(2*bccicont(4,i)+zalpha2))*samples.
+                       COMPUTE LCII = rnd(CBCLLII). 
+                       COMPUTE UCII = trunc(CBCUCII)+1. 
+                       DO IF (LCII < 1 OR UCII > samples). 
+                          COMPUTE runnotes(4, 1) = 4.  
+                          COMPUTE criterr = 1. 
+                          COMPUTE LCII = 1. 
+                          COMPUTE UCII = samples.
+                       END IF. 
+                       COMPUTE ContLLCI(1,i) = contsort(LCII,i). 
+                       COMPUTE ContULCI(1,i) = contsort(UCII,i).
+                 END IF. 
                  END LOOP. 
-                 COMPUTE ContLLCI = contsort(LCII, :). 
-                 COMPUTE ContULCI = contsort(UCII, :). 
+                 DO IF (bc <>1). 
+                     COMPUTE ContLLCI = contsort(LCII, :). 
+                     COMPUTE ContULCI = contsort(UCII, :). 
+                 END IF. 
                  COMPUTE ContCI = {t(contllci),t(contulci)}. 
-                 COMPUTE contres(:,3:4) = contCI. 
-         END IF. 
+                 COMPUTE contres(:,3:4) = contCI.  
+         END IF. *DO IF  (contrast = 1) AND (Mpairs >1).
     END IF. 
     *close MC <> 1. 
 END IF. 
@@ -3062,9 +3089,11 @@ END LOOP.
 
 DO IF (criterr = 0). 
     DO IF ((model = 1) OR (model > 3)). 
-       DO IF (mc <>1). 
+       DO IF (mc <>1 AND bc = 1). 
+          print /title = "Bootstrap confidence interval method used: Bias corrected.".
+       ELSE IF (mc <>1 AND bc <>1). 
           print /title = "Bootstrap confidence interval method used: Percentile bootstrap.".
-       END IF. 
+       END IF.  
        DO IF (mc = 1). 
        print samples /title = "Number of samples for Monte Carlo condifidence intervals:".
        ELSE. 
