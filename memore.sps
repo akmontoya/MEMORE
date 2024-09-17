@@ -810,7 +810,7 @@ DO IF (criterr = 0).
           END LOOP. 
           COMPUTE indres = MAKE((Mpairs*(1+(apathmod = 1))*(1+(bpathmod = 1))+1+serind*(serial=1)),1,0). 
           DO IF (normal = 1). 
-             COMPUTE normres = MAKE((Mpairs*(1+(apathmod = 1))*(1+(bpathmod = 1))+1+serind*(serial=1)), 4, 0). 
+             COMPUTE normres = MAKE((Mpairs*(1+(apathmod = 1))*(1+(bpathmod = 1))+serind*(serial=1)), 4, 0). 
           END IF. 
           COMPUTE cpindx = 1+cppthmd.  
           COMPUTE cpresmat(1:cpindx,1) = bcpvec(1:cpindx,1). 
