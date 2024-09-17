@@ -49,7 +49,7 @@ quit;
 
 %memore(y = y1 y2, m = m11 m12 m21 m22 m31 m32, serial = 1, model = 1, normal = 1, mc = 1, xmint = 0, data = parallelserial);
 
-%memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, normal = 1, mc = 1, model = 4, contrast = 1, samples = 1000, data = parallelserial);
+%memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, normal = 1, mc = 1, model = 5, contrast = 1, samples = 1000, data = parallelserial);
 
 %memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, model = 4, plot = 1, jn=1, xmint = 0, samples = 1000, data = parallelserial, save = est3);
 %memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, model = 4, plot = 1, jn=1, xmint = 0, mc = 1, samples = 1000, data = parallelserial, save = est4);
@@ -60,5 +60,21 @@ quit;
 
 %memore(y = y1 y2, w = m21 m22, model = 3, plot = 1, jn = 1, data = parallelserial);
 
+%memore(y = y1 y2, m = m11 m12, model = 1, data = parallelserial);
 %memore(y = y1 y2, m = m11 m12, model = 1, normal = 1, mc = 1, data = parallelserial);
 %memore(y = y1 y2, m = m11 m12 m21 m22, model = 1, normal = 1, mc = 1, data = parallelserial);
+
+%memore(y = y1 y2, m = m11 m12 m31 m32, w = m21, model = 5, samples = 1000, data = parallelserial);
+
+%memore(y = y1 y2, m = m11 m12 m31 m32, model = 1, normal = 1, samples = 1000, data = parallelserial);
+%memore(y = y1 y2, m = m11 m12, model = 1, normal = 1, samples = 1000, data = parallelserial);
+
+%memore(y = int_g int_I, w = order, model = 2, data = CompSci_WS);
+%memore(w=order,y = int_G int_I, model = 2, plot = 1, data = CompSci_WS);
+%memore(w=grppref order,y = int_G int_I, model = 2, 
+        data = CompSci_WS);
+
+%memore(y = int_g int_I, m = comm_g comm_i diff_g diff_i, model = 1, bc = 1, data = CompSci_WS, samples = 1000);
+%memore(y = int_g int_I, m = comm_g comm_i diff_g diff_i, w = order, model = 4, data = CompSci_WS, samples = 20000);
+%memore(y = int_g int_I, m = comm_g comm_i diff_g diff_i, w = grppref, model = 12, data = CompSci_WS);
+
