@@ -1402,7 +1402,6 @@ DO IF (criterr = 0).
          COMPUTE bootsort = bootsamp. 
          COMPUTE seboots = MAKE(nrow(indres), 1, 0).  
          COMPUTE bccires = MAKE(4, ncol(bootsamp), 0). 
-         print bccires. 
          COMPUTE BootLLCI = MAKE(1,ncol(bootsamp),0). 
          COMPUTE BootULCI = MAKE(1,ncol(bootsamp),0). 
          COMPUTE zalpha2 = sqrt(-2*ln(alpha/2)).
@@ -1434,7 +1433,6 @@ DO IF (criterr = 0).
                 END IF. 
                 COMPUTE BootLLCI(1,i) = bootsort(LCII,i). 
                 COMPUTE BootULCI(1,i) = bootsort(UCII,i). 
-                print bccires. 
             END IF. 
          END LOOP.
          DO IF (bc <>1). 
@@ -1442,8 +1440,7 @@ DO IF (criterr = 0).
              COMPUTE BootULCI = bootsort(UCII, :).
          END IF.  
          COMPUTE BootCI = {t(bootllci),t(bootulci)}. 
-         COMPUTE bootres = {indres, seboots, bootci}.
-         print bootres. 
+         COMPUTE bootres = {indres, seboots, bootci}. 
 
          DO IF  (contrast = 1) AND (Mpairs >1). 
                  COMPUTE bccicont = MAKE(4,ncol(contsamp), 0).
@@ -2321,8 +2318,9 @@ ELSE IF ((Model = 2) OR (model = 3)).
 END IF. 
 print modres /title "Model" /rnames = modlabs /clabels = "coeff" , "SE", "t", "p", "LLCI", "ULCI" /format = !decimals.
 print df2 /title = "Degrees of freedom for all regression coefficient estimates:".
+
 DO IF (cppthmd = 1).
-     print /title = "--------------------------------------------------------------------------------------". 
+    print /title = "--------------------------------------------------------------------------------------". 
     COMPUTE XYgWcMlb = {wnames}. 
     DO IF (xmint = 1). 
         DO IF (Mpairs = 1). 
@@ -2367,11 +2365,12 @@ DO IF (cppthmd = 1).
             print /title = "There are no statistically significant transition points within the observed range of data.". 
             END IF. 
     END IF. 
-    print /title = "--------------------------------------------------------------------------------------".
+    
 END IF. 
 
 DO IF (bpathmod = 1). 
     LOOP j = 1 to Mpairs. 
+         print /title = "--------------------------------------------------------------------------------------".
          DO IF (mpairs = 1). 
                COMPUTE condnam(:, 2) = {"Mdiff"; "Ydiff"; wnamemat(1,1)}. 
          ELSE. 
@@ -2405,13 +2404,12 @@ DO IF (bpathmod = 1).
                     print /title = "There are no statistically significant transition points within the observed range of data.". 
                     END IF. 
         END IF.     
-        print /title = "--------------------------------------------------------------------------------------". 
     END LOOP. 
 END IF. 
 
 DO IF (dpathmod = 1). 
-     print /title = "--------------------------------------------------------------------------------------".      
     LOOP j = 1 to Mpairs. 
+        print /title = "--------------------------------------------------------------------------------------". 
          DO IF (mpairs = 1). 
                COMPUTE condnam(:, 2) = {"Mavg"; "Ydiff"; wnamemat(1,1)}. 
          ELSE. 
@@ -2444,13 +2442,12 @@ DO IF (dpathmod = 1).
                     ELSE IF (dNumJN(j,1) = 0). 
                     print /title = "There are no statistically significant transition points within the observed range of data.". 
                     END IF. 
-        END IF.      
-                
-    print /title = "--------------------------------------------------------------------------------------".                        
+        END IF.                                         
     END LOOP. 
 END IF. 
 
 DO IF ((cppthmd =1) OR (bpathmod = 1) OR (dpathmod = 1)).
+    print /title = "--------------------------------------------------------------------------------------".   
     print df2 /title = "Degrees of freedom for all conditional effects:".
 END IF. 
 
@@ -3219,4 +3216,4 @@ END IF.
 
 end matrix. 
 !ENDDEFINE. 
-restore. COMMENT BOOKMARK;LINE_NUM=1409;ID=1.
+restore. COMMENT BOOKMARK;LINE_NUM=1408;ID=1.
