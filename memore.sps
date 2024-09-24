@@ -1165,6 +1165,9 @@ DO IF (criterr = 0).
                 COMPUTE bootdat = dataT(sortvar(:,1),:).  
                 DO IF (xmint = 1).
                   LOOP j = 1 TO Mpairs. 
+                      *DO IF (i = 1). 
+                      *    print bootdat. 
+                      *END IF. 
                       COMPUTE summean = csum(bootdat(:,2*j+(1-(anymod=0))))/N.
                       COMPUTE bootdat(:,2*j+(1-(anymod=0))) = bootdat(:,2*j+(1-(anymod=0))) - summean.
                   END LOOP.
@@ -1399,6 +1402,7 @@ DO IF (criterr = 0).
 
          COMPUTE bootsamp(:,ncol(bootsamp)) = rsum(bootsamp(:,1:(ncol(bootsamp)-1))).    
          COMPUTE indres(nrow(indres),1) = csum(indres).
+         *print (csum(bootsamp)/samples). 
          COMPUTE bootsort = bootsamp. 
          COMPUTE seboots = MAKE(nrow(indres), 1, 0).  
          COMPUTE bccires = MAKE(4, ncol(bootsamp), 0). 
@@ -1406,6 +1410,7 @@ DO IF (criterr = 0).
          COMPUTE BootULCI = MAKE(1,ncol(bootsamp),0). 
          COMPUTE zalpha2 = sqrt(-2*ln(alpha/2)).
          COMPUTE zalpha2 = (zalpha2+((((zalpha2*p4+p3)*zalpha2+p2)*zalpha2+p1)*zalpha2+p0)/((((zalpha2*q4+q3)*zalpha2+q2)*zalpha2+q1)*zalpha2+q0)).
+         *print (ncol(bootsamp)). 
          LOOP i = 1 TO ncol(bootsamp). 
             COMPUTE bootgrad = grade(bootsamp(:,i)). 
             COMPUTE bootsort(bootgrad,i) = bootsamp(:,i). 
@@ -1806,6 +1811,7 @@ DO IF (((apathmod = 1) OR (bpathmod = 1))) AND (criterr = 0).
     COMPUTE immres = MAKE(mpairs, 4, -999). 
     COMPUTE cindres = MAKE((dimmc+setswv)*mpairs, 5, -999). 
     COMPUTE modmat = {MAKE(1, dimmc, 1); t(modcomb)}. 
+    *print modmat.
     DO IF (setswv > 0). 
           COMPUTE modmat = {modmat, ({MAKE(1, setswv, 1); t(modvmat)})}. 
     END IF.
@@ -1833,6 +1839,7 @@ DO IF (((apathmod = 1) OR (bpathmod = 1))) AND (criterr = 0).
             END IF. 
             
             DO IF (bpathmod = 1). 
+                *print (csum(bootsave)/samples).
                 DO IF (mc=0). 
                     COMPUTE bsamps = {bootsave(:,3+(1+apathmod)*mpairs+cppthmd+i), bootsave(:,3+(2+apathmod)*mpairs+cppthmd+i)}. 
                 ELSE IF (mc=1). 
@@ -1854,9 +1861,11 @@ DO IF (((apathmod = 1) OR (bpathmod = 1))) AND (criterr = 0).
              END IF.  
             COMPUTE cindres((1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),2) = condas&*condbs. 
             COMPUTE cabsamps = casamps&*cbsamps. 
+            *print (csum(cabsamps)/samples). 
             COMPUTE scabsamps = cabsamps. 
             DO IF (dimmc = 2).  
                 COMPUTE immsamp = {cabsamps(:,2) - cabsamps(:,1)}. 
+                 *print (csum(immsamp)/samples).
                 COMPUTE immres(i,1) = condas(2,1)*condbs(2,1) - condas(1,1)*condbs(1,1). 
                 COMPUTE sampgrad = grade(immsamp).  
                 COMPUTE immsamp(sampgrad) = immsamp. 
@@ -3216,4 +3225,5 @@ END IF.
 
 end matrix. 
 !ENDDEFINE. 
-restore. COMMENT BOOKMARK;LINE_NUM=1408;ID=1.
+restore. COMMENT BOOKMARK;LINE_NUM=1170;ID=2.
+COMMENT BOOKMARK;LINE_NUM=1412;ID=1.
