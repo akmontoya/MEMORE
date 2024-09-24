@@ -4,3 +4,4 @@ PROC IMPORT OUT= WORK.parallelserial
             DBMS=SPSS REPLACE;
 
 RUN;
+

@@ -46,6 +46,13 @@ print moddat;
 %JNprobe(coefone = 1, coefTwo = 2, seOne = 3, seTwo = 4, cov = -10, critt = 1.96, dfJN = 100);
 quit;
 
+proc iml;
+testdat = {-1,1, 2, 3, 4, 5,600,1, 2, 3, 4, 5,6001, 2, 3, 4, 5,6001, 2, 3, 4, 5,6001, 2, 3, 4, 5,6001, 2, 3, 4, 5,600};
+N = nrow(moddat);
+print moddat;
+%JNprobe(coefone = 1, coefTwo = 2, seOne = 3, seTwo = 4, cov = -10, critt = 1.96, dfJN = 100);
+quit;
+
 
 %memore(y = y1 y2, m = m11 m12 m21 m22 m31 m32, serial = 1, model = 1, normal = 1, mc = 1, xmint = 0, data = parallelserial);
 
@@ -78,3 +85,5 @@ quit;
 %memore(y = int_g int_I, m = comm_g comm_i diff_g diff_i, w = order, model = 4, data = CompSci_WS, samples = 20000);
 %memore(y = int_g int_I, m = comm_g comm_i diff_g diff_i, w = grppref, model = 12, data = CompSci_WS);
 
+
+%memore(y = int_g int_I, m = comm_g comm_i diff_g diff_i, w = order, model = 4, bc = 1, samples = 10000, data = CompSci_WS);

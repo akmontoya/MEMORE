@@ -1409,7 +1409,9 @@ DO IF (criterr = 0).
          COMPUTE BootLLCI = MAKE(1,ncol(bootsamp),0). 
          COMPUTE BootULCI = MAKE(1,ncol(bootsamp),0). 
          COMPUTE zalpha2 = sqrt(-2*ln(alpha/2)).
+         print zalpha2.
          COMPUTE zalpha2 = (zalpha2+((((zalpha2*p4+p3)*zalpha2+p2)*zalpha2+p1)*zalpha2+p0)/((((zalpha2*q4+q3)*zalpha2+q2)*zalpha2+q1)*zalpha2+q0)).
+         print zalpha2.
          *print (ncol(bootsamp)). 
          LOOP i = 1 TO ncol(bootsamp). 
             COMPUTE bootgrad = grade(bootsamp(:,i)). 
@@ -1426,8 +1428,11 @@ DO IF (criterr = 0).
                 DO IF (bccires(1,i) <= .5). 
                    COMPUTE bccires(4,i) = -bccires(4,i). 
                 END IF. 
+                print bccires. 
                 COMPUTE BCLLII = (cdfnorm(2*bccires(4,i)-zalpha2))*samples.
                 COMPUTE BCUCII = (cdfnorm(2*bccires(4,i)+zalpha2))*samples.
+                print bcllii. 
+                print bcucii. 
                 COMPUTE LCII = rnd(BCLLII). 
                 COMPUTE UCII = trunc(BCUCII)+1. 
                 DO IF (LCII < 1 OR UCII > samples). 
@@ -3226,4 +3231,4 @@ END IF.
 end matrix. 
 !ENDDEFINE. 
 restore. COMMENT BOOKMARK;LINE_NUM=1170;ID=2.
-COMMENT BOOKMARK;LINE_NUM=1412;ID=1.
+COMMENT BOOKMARK;LINE_NUM=1413;ID=1.
