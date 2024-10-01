@@ -1429,7 +1429,7 @@ if (badboot>0)then runnotes[14,1] = 14;
 	  bootllci[1,i]=llcit;
       bootulci[1,i]=ulcit;
 	end; *do i = 1 to ncol(bootsamp); 
-	*if (bc ^= 1) then;do;
+	*if (bc ^= 1) then;*do;
     *  bootllci=bootsort[lcii,];
 	*  bootulci=bootsort[ucii,];
 	*end;
