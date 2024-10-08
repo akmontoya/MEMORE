@@ -1357,10 +1357,10 @@ do i = (2+cppthmd) to (1+cppthmd+mpairs*(1+xmint)) by (1+xmint);
 		bootsave[i,] = t(bootcvec)||t(bootavec)||t(bootcpvec)||t(bootbvec);
 	end;
 	if((serial=1)&(xmint=1)) then; do;
-		bootsave[i,] = t(bootcvec)||t(bootavec)||t(bootser)||t(bootcpvec)||t(bootbvec)||t(bootdvec);
+		bootsave[i,] = t(bootcvec)||t(bootavec[1,1])||t(bootser)||t(bootcpvec)||t(bootbvec)||t(bootdvec);
 	end;
 	if((serial=1)&(xmint=0)) then; do;
-		bootsave[i,] = t(bootcvec)||t(bootavec)||t(bootser)||t(bootcpvec)||t(bootbvec);
+		bootsave[i,] = t(bootcvec)||t(bootavec[1,1])||t(bootser)||t(bootcpvec)||t(bootbvec);
 	end;
 	
  end; *iloop;
