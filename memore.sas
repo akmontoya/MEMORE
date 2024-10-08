@@ -1938,13 +1938,23 @@ if(((apathmod = 1)|(bpathmod=1))&(criterr=0)) then; do;
 			*end; *if (bc=1) then;
 		end; *if(dimmc = 2);
 		do j = 1 to ncol(cabsamps);
-			sampgrad = rank(cabsamps[,j]);
-			scabsamps[sampgrad,j] = cabsamps[,j];
-			tempcab = (scabsamps[,j]-(scabsamps[+,j]/samples))##2;
-			cindres[(i-1)*(dimmc+setswv)+j,3] = sqrt(tempcab[+,]/(samples-1));
+
+			if (bc = 1) then estbc = cindres[(1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),1];
+	  		if (bc = 0) then estbc = -9999;
+			%bcbootM(dat = (cabsamps[,j]), est = estbc);
+      		tempmn=cabsamps[+,j]/samples;
+      		tempsm=(cabsamps[,j]-tempmn)##2;
+	  		cindres[(1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),2]=sqrt(tempsm[+,]/(samples-1));
+	  		cindres[(1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),3]=llcit;
+      		cindres[(1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),4]=ulcit;
+
+			*sampgrad = rank(cabsamps[,j]);
+			*cabsamps[sampgrad,j] = cabsamps[,j];
+			*tempcab = (scabsamps[,j]-(scabsamps[+,j]/samples))##2;
+			*cindres[(i-1)*(dimmc+setswv)+j,3] = sqrt(tempcab[+,]/(samples-1));
 		end; *do j = 1 to ncol(cabsamps);
-		cindres[(1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),4] = t(scabsamps[LCII,]);
-		cindres[(1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),5] = t(scabsamps[UCII,]);
+		*cindres[(1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),4] = t(scabsamps[LCII,]);
+		*cindres[(1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),5] = t(scabsamps[UCII,]);
 	end; *do i = 1 to Mpairs;
 end; *if(((apathmod = 1)|(bpathmod=1))&(criterr=0));
 
