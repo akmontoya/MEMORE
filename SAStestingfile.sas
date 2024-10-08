@@ -96,3 +96,13 @@ quit;
 
 
 %memore(y = int_g int_I, m = comm_g comm_i diff_g diff_i, w = order, model = 4, bc = 1, samples = 10000, data = CompSci_WS);
+
+%memore(data = work.ParallelSerial, y = Y1 Y2, m = M11 M12 M21 M22, model = 1, serial = 1);
+%memore(data = work.ParallelSerial, y = Y1 Y2, m = M11 M12 M21 M22 M31 M32, model = 1, serial = 1);
+%memore(data = work.ParallelSerial, y = Y1 Y2, m = M11 M12 M21 M22, model = 1);
+
+
+%memore(data = work.ParallelSerial, y = Y1 Y2, m = M11 M12 M21 M22 M31 M32, model = 1, contrast = 1);
+
+%memore(data = work.ParallelSerial, y = Y1 Y2, m = M11 M12 m21 m22, w = dich, model = 4);
+%memore(data = work.ParallelSerial, y = Y1 Y2, m = M11 M12, w = dich, model = 18);
