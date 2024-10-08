@@ -68,6 +68,15 @@ quit;
 %memore(y = y1 y2, w = m21 m22, model = 3, plot = 1, jn = 1, data = parallelserial);
 
 %memore(y = y1 y2, m = m11 m12, model = 1, data = parallelserial);
+%memore(y = y1 y2, m = m11 m12, model = 1, bc = 1, data = parallelserial);
+%memore(y = y1 y2, m = m11 m12 m21 m22 m31 m32, model = 1, data = parallelserial);
+%memore(y = y1 y2, m = m11 m12 m21 m22 m31 m32, model = 1, bc = 1, data = parallelserial);
+
+%memore(y = y1 y2, m = m11 m12 m21 m22 m31 m32, contrast = 1, model = 1, data = parallelserial);
+%memore(y = y1 y2, m = m11 m12 m21 m22 m31 m32, contrast = 1, model = 1, bc = 1, data = parallelserial);
+
+
+
 %memore(y = y1 y2, m = m11 m12, model = 1, normal = 1, mc = 1, data = parallelserial);
 %memore(y = y1 y2, m = m11 m12 m21 m22, model = 1, normal = 1, mc = 1, data = parallelserial);
 
