@@ -82,10 +82,10 @@ define SOBEL(a = !charend('/') /sea = !charend('/') /b = !charend('/') /seb = !c
     COMPUTE sobelres = {product, sobse, sobelZ, sobelp}. 
 !enddefine. 
 
-define bcbootM (dat =!charend('/') /est = !charend('/') !default(-9999)).
+define bcbootM (dat =!charend('/') /est = !charend('/') !default(9999)).
     COMPUTE temp=!dat.
     COMPUTE temp(grade(temp))=!dat.
-    DO IF (!est <> -9999).
+    DO IF (!est <> 9999).
         COMPUTE bctemp=(!dat < !est).
         COMPUTE bctemp2=csum(bctemp)/samples.
         COMPUTE bctemp3=bctemp2.
@@ -110,7 +110,7 @@ define bcbootM (dat =!charend('/') /est = !charend('/') !default(-9999)).
         COMPUTE llcit=temp(bcllii,1).
         COMPUTE ulcit=temp(bcucii,1).
     END IF.  
-    DO IF (!est = -9999).
+    DO IF (!est = 9999).
         COMPUTE llcit=temp(lcii,1).
         COMPUTE ulcit = temp(ucii,1).
     END IF. 
@@ -1448,43 +1448,51 @@ DO IF (criterr = 0).
          print zalpha2.
          *print (ncol(bootsamp)). 
          LOOP i = 1 TO ncol(bootsamp). 
-            COMPUTE bootgrad = grade(bootsamp(:,i)). 
-            COMPUTE bootsort(bootgrad,i) = bootsamp(:,i). 
-            COMPUTE seboots(i,1) = sqrt(csum((bootsort(:,i)-(csum(bootsort(:,i))/samples))&**2)/(samples-1)).
-            DO IF (bc = 1). 
-                COMPUTE bccires(1,i) = csum(bootsamp(:,i)<indres(i,1))/samples.
-                COMPUTE bccires(2,i) = bccires(1,i). 
-                DO IF (bccires(1,i) > .5). 
-                   COMPUTE bccires(2,i) = 1-bccires(1,i). 
-                END IF.
-                COMPUTE bccires(3,i) = sqrt(-2*ln(bccires(2,i))). 
-                COMPUTE bccires(4,i) = bccires(3,i)+((((bccires(3,i)*p4+p3)*bccires(3,i)+p2)*bccires(3,i)+p1)*bccires(3,i)+p0)/((((bccires(3,i)*q4+q3)*bccires(3,i)+q2)*bccires(3,i)+q1)*bccires(3,i)+q0).
-                DO IF (bccires(1,i) <= .5). 
-                   COMPUTE bccires(4,i) = -bccires(4,i). 
-                END IF. 
-                print bccires. 
-                COMPUTE BCLLII = (cdfnorm(2*bccires(4,i)-zalpha2))*samples.
-                COMPUTE BCUCII = (cdfnorm(2*bccires(4,i)+zalpha2))*samples.
-                print bcllii. 
-                print bcucii. 
-                COMPUTE LCII = rnd(BCLLII). 
-                COMPUTE UCII = trunc(BCUCII)+1. 
-                DO IF (LCII < 1 OR UCII > samples). 
-                   COMPUTE runnotes(4, 1) = 4.  
-                   COMPUTE criterr = 1. 
-                   COMPUTE LCII = 1. 
-                   COMPUTE UCII = samples.
-                END IF. 
-                COMPUTE BootLLCI(1,i) = bootsort(LCII,i). 
-                COMPUTE BootULCI(1,i) = bootsort(UCII,i). 
-            END IF. 
+             DO IF (bc = 1). 
+                 COMPUTE estbc = indres(i,1). 
+             ELSE IF (bc = 0). 
+                 COMPUTE estbc = -9999.
+             END IF. 
+             print estbc.
+             BCBOOTM(dat = bootsamp(:,i), est = estbc). 
+             COMPUTE seboots(i,1) = sqrt(csum((bootsort(:,i)-(csum(bootsort(:,i))/samples))&**2)/(samples-1)).
+            *COMPUTE bootgrad = grade(bootsamp(:,i)). 
+            *COMPUTE bootsort(bootgrad,i) = bootsamp(:,i). 
+            *DO IF (bc = 1). 
+             *   COMPUTE bccires(1,i) = csum(bootsamp(:,i)<indres(i,1))/samples.
+            *    COMPUTE bccires(2,i) = bccires(1,i). 
+            *   DO IF (bccires(1,i) > .5). 
+            *       COMPUTE bccires(2,i) = 1-bccires(1,i). 
+            *    END IF.
+            *    COMPUTE bccires(3,i) = sqrt(-2*ln(bccires(2,i))). 
+            *    COMPUTE bccires(4,i) = bccires(3,i)+((((bccires(3,i)*p4+p3)*bccires(3,i)+p2)*bccires(3,i)+p1)*bccires(3,i)+p0)/((((bccires(3,i)*q4+q3)*bccires(3,i)+q2)*bccires(3,i)+q1)*bccires(3,i)+q0).
+            *    DO IF (bccires(1,i) <= .5). 
+            *       COMPUTE bccires(4,i) = -bccires(4,i). 
+            *    END IF. 
+            *    print bccires. 
+            *    COMPUTE BCLLII = (cdfnorm(2*bccires(4,i)-zalpha2))*samples.
+            *    COMPUTE BCUCII = (cdfnorm(2*bccires(4,i)+zalpha2))*samples.
+            *    print bcllii. 
+            *    print bcucii. 
+            *    COMPUTE LCII = rnd(BCLLII). 
+            *    COMPUTE UCII = trunc(BCUCII)+1. 
+            *    DO IF (LCII < 1 OR UCII > samples). 
+            *       COMPUTE runnotes(4, 1) = 4.  
+            *       COMPUTE criterr = 1. 
+            *       COMPUTE LCII = 1. 
+            *       COMPUTE UCII = samples.
+            *    END IF. 
+            *    COMPUTE BootLLCI(1,i) = bootsort(LCII,i). 
+            *    COMPUTE BootULCI(1,i) = bootsort(UCII,i). 
+            *END IF. 
          END LOOP.
-         DO IF (bc <>1). 
+         *DO IF (bc <>1). 
              COMPUTE BootLLCI = bootsort(LCII, :). 
              COMPUTE BootULCI = bootsort(UCII, :).
-         END IF.  
+         *END IF.  
          COMPUTE BootCI = {t(bootllci),t(bootulci)}. 
          COMPUTE bootres = {indres, seboots, bootci}. 
+         print bootres. 
 
          DO IF  (contrast = 1) AND (Mpairs >1). 
                  COMPUTE bccicont = MAKE(4,ncol(contsamp), 0).
