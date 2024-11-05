@@ -82,11 +82,16 @@ define SOBEL(a = !charend('/') /sea = !charend('/') /b = !charend('/') /seb = !c
     COMPUTE sobelres = {product, sobse, sobelZ, sobelp}. 
 !enddefine. 
 
-define bcbootM (dat =!charend('/') /est = !charend('/') !default(9999)).
+define bcbootM (dat =!charend('/') /est = !charend('/')).
     COMPUTE temp=!dat.
+    print temp. 
     COMPUTE temp(grade(temp))=!dat.
+    COMPUTE esttest = !est. 
+    print temp. 
+    print (esttest). 
+    print ((make(nrow(!dat), 1, !est)).
     DO IF (!est <> 9999).
-        COMPUTE bctemp=(!dat < !est).
+        COMPUTE bctemp=(!dat < make(nrow(!dat), 1, !est).
         COMPUTE bctemp2=csum(bctemp)/samples.
         COMPUTE bctemp3=bctemp2.
         DO IF(bctemp2 > .5).
@@ -644,7 +649,7 @@ DO IF (criterr = 0).
 
     COMPUTE N = nrow(data).
     COMPUTE alpha = (1-.01*Conf). 
-    COMPUTE temp = alpha/2. 
+    COMPUTE alpha2 = alpha/2. 
 
     DO IF ((model = 1) OR (model >= 4)).
           COMPUTE aresmat = MAKE (Mpairs*(1+apathmod), 6, -999). 
@@ -653,7 +658,7 @@ DO IF (criterr = 0).
               COMPUTE ades = {ades, dataT(:,1:Wcount)}. 
               COMPUTE amodsum = make(mpairs, 7, -999).
           END IF. 
-          CDFINVT p = temp/ df = (N-ncol(ades)). 
+          CDFINVT p = alpha2/ df = (N-ncol(ades)). 
           COMPUTE tcrita = toutput. 
           COMPUTE tcritc = toutput.
           COMPUTE counterj = 1. 
@@ -775,7 +780,7 @@ DO IF (criterr = 0).
                 ELSE IF (xmint = 0).
                    COMPUTE end = (counterj**2 + 3*counterj)/2. 
                 END IF. 
-                CDFINVT p = temp /df = M2df2. 
+                CDFINVT p = alpha2 /df = M2df2. 
                 COMPUTE sercritt = toutput. 
                 COMPUTE serres(start:end,1) = M2modbs. 
                 COMPUTE serres(start:end, 2) = sem2b. 
@@ -825,7 +830,7 @@ DO IF (criterr = 0).
     COMPUTE sebcp = (diag(sebcpmat))&**(1/2).  
     COMPUTE modsumr = {Rfull, Rsqfull, MSR, Ffull, df1, df2, pfull}. 
     
-    CDFINVT p = temp/ df = df2. 
+    CDFINVT p = alpha2/ df = df2. 
     COMPUTE tcritb = toutput. 
     COMPUTE tcritcp = toutput. 
     COMPUTE tcritd = toutput. 
@@ -1451,10 +1456,10 @@ DO IF (criterr = 0).
              DO IF (bc = 1). 
                  COMPUTE estbc = indres(i,1). 
              ELSE IF (bc = 0). 
-                 COMPUTE estbc = -9999.
+                 COMPUTE estbc = 9999.
              END IF. 
              print estbc.
-             BCBOOTM(dat = bootsamp(:,i), est = estbc). 
+             BCBOOTM(dat = bootsamp(:,i) /est = estbc). 
              COMPUTE seboots(i,1) = sqrt(csum((bootsort(:,i)-(csum(bootsort(:,i))/samples))&**2)/(samples-1)).
             *COMPUTE bootgrad = grade(bootsamp(:,i)). 
             *COMPUTE bootsort(bootgrad,i) = bootsamp(:,i). 
@@ -3272,5 +3277,4 @@ END IF.
 
 end matrix. 
 !ENDDEFINE. 
-restore. COMMENT BOOKMARK;LINE_NUM=1170;ID=2.
-COMMENT BOOKMARK;LINE_NUM=1447;ID=1.
+COMMENT BOOKMARK;LINE_NUM=1452;ID=1.
