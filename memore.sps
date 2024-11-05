@@ -82,6 +82,40 @@ define SOBEL(a = !charend('/') /sea = !charend('/') /b = !charend('/') /seb = !c
     COMPUTE sobelres = {product, sobse, sobelZ, sobelp}. 
 !enddefine. 
 
+define bcbootM (dat =!charend('/') /est = !charend('/') !default(-9999)).
+    COMPUTE temp=!dat.
+    COMPUTE temp(grade(temp))=!dat.
+    DO IF (!est <> -9999).
+        COMPUTE bctemp=(!dat < !est).
+        COMPUTE bctemp2=csum(bctemp)/samples.
+        COMPUTE bctemp3=bctemp2.
+        DO IF(bctemp2 > .5).
+            COMPUTE bctemp3=1-bctemp2. 
+        END IF. 
+        COMPUTE bctemp4=sqrt(-2*log(bctemp3)).
+        COMPUTE bctemp5=bctemp4+((((bctemp4*p4+p3)*bctemp4+p2)*bctemp4+p1)*bctemp4+p0)/((((bctemp4*q4+q3)*bctemp4+q2)*bctemp4+q1)*bctemp4+q0).
+        DO IF (bctemp2 <= .5).
+            COMPUTE bctemp5=-bctemp5.
+        END IF. 
+        COMPUTE bcllii=cdfnorm(2*bctemp5-zalpha2)*nrow(!dat).
+        COMPUTE bcucii=cdfnorm(2*bctemp5+zalpha2)*nrow(!dat).
+        COMPUTE bcllii=round(bcllii).
+        COMPUTE bcucii=floor(bcucii)+1.
+        DO IF ((bcllii < 1) | (bcucii > nrow(!dat))).
+	COMPUTE runnotes(4,1)=4.
+                  COMPUTE criterr=1.
+                  COMPUTE bcllii=1.
+                  COMPUTE bcucii=nrow(!dat).
+        END IF. 
+        COMPUTE llcit=temp(bcllii,1).
+        COMPUTE ulcit=temp(bcucii,1).
+    END IF.  
+    DO IF (!est = -9999).
+        COMPUTE llcit=temp(lcii,1).
+        COMPUTE ulcit = temp(ucii,1).
+    END IF. 
+!enddefine.
+
 define DICHOT(modcount = !charend('/') /dat = !charend('/')). 
     COMPUTE dich = MAKE(!modcount, 3, -999). 
     LOOP q = 1 to !modcount. 
@@ -3231,4 +3265,4 @@ END IF.
 end matrix. 
 !ENDDEFINE. 
 restore. COMMENT BOOKMARK;LINE_NUM=1170;ID=2.
-COMMENT BOOKMARK;LINE_NUM=1413;ID=1.
+COMMENT BOOKMARK;LINE_NUM=1447;ID=1.
