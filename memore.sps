@@ -82,42 +82,48 @@ define SOBEL(a = !charend('/') /sea = !charend('/') /b = !charend('/') /seb = !c
     COMPUTE sobelres = {product, sobse, sobelZ, sobelp}. 
 !enddefine. 
 
-define bcbootM (dat =!charend('/') /est = !charend('/')).
-    COMPUTE temp=!dat.
-    print temp. 
-    COMPUTE temp(grade(temp))=!dat.
-    COMPUTE esttest = !est. 
-    print temp. 
-    print (esttest). 
-    print ((make(nrow(!dat), 1, !est)).
+define bcbootM(est = !charend('/') !default(9999) /dat = !charend('/')).  
+    COMPUTE tdat=!dat.
+    *print tdat. 
+    COMPUTE tdat(grade(tdat))=!dat.
+    *print tdat. 
+    print (!est). 
+    *print (!dat < make(nrow(!dat), 1, !est)).
     DO IF (!est <> 9999).
-        COMPUTE bctemp=(!dat < make(nrow(!dat), 1, !est).
+        print /title = "entered if". 
+        COMPUTE bctemp=(!dat < make(nrow(!dat), 1, !est)).
         COMPUTE bctemp2=csum(bctemp)/samples.
         COMPUTE bctemp3=bctemp2.
         DO IF(bctemp2 > .5).
             COMPUTE bctemp3=1-bctemp2. 
         END IF. 
-        COMPUTE bctemp4=sqrt(-2*log(bctemp3)).
+        print bctemp3. 
+        COMPUTE bctemp4=sqrt(-2*ln(bctemp3)).
         COMPUTE bctemp5=bctemp4+((((bctemp4*p4+p3)*bctemp4+p2)*bctemp4+p1)*bctemp4+p0)/((((bctemp4*q4+q3)*bctemp4+q2)*bctemp4+q1)*bctemp4+q0).
         DO IF (bctemp2 <= .5).
             COMPUTE bctemp5=-bctemp5.
         END IF. 
+        print bctemp5. 
         COMPUTE bcllii=cdfnorm(2*bctemp5-zalpha2)*nrow(!dat).
-        COMPUTE bcucii=cdfnorm(2*bctemp5+zalpha2)*nrow(!dat).
-        COMPUTE bcllii=round(bcllii).
-        COMPUTE bcucii=floor(bcucii)+1.
-        DO IF ((bcllii < 1) | (bcucii > nrow(!dat))).
+       COMPUTE bcucii=cdfnorm(2*bctemp5+zalpha2)*nrow(!dat).
+        COMPUTE bcllii=rnd(bcllii).
+        print bcllii. 
+        COMPUTE bcucii=trunc(bcucii)+1.
+        print bcucii. 
+        DO IF ((bcllii < 1) OR (bcucii > nrow(!dat))).
 	COMPUTE runnotes(4,1)=4.
                   COMPUTE criterr=1.
                   COMPUTE bcllii=1.
                   COMPUTE bcucii=nrow(!dat).
         END IF. 
-        COMPUTE llcit=temp(bcllii,1).
-        COMPUTE ulcit=temp(bcucii,1).
+        COMPUTE llcit=tdat(bcllii,1).
+        print llcit. 
+       COMPUTE ulcit=tdat(bcucii,1).
+       print ulcit. 
     END IF.  
-    DO IF (!est = 9999).
-        COMPUTE llcit=temp(lcii,1).
-        COMPUTE ulcit = temp(ucii,1).
+   DO IF (!est = 9999).
+       COMPUTE llcit=tdat(lcii,1).
+        COMPUTE ulcit = tdat(ucii,1).
     END IF. 
 !enddefine.
 
@@ -1459,7 +1465,7 @@ DO IF (criterr = 0).
                  COMPUTE estbc = 9999.
              END IF. 
              print estbc.
-             BCBOOTM(dat = bootsamp(:,i) /est = estbc). 
+             bcbootM dat = bootsamp(:,i) /est = estbc. 
              COMPUTE seboots(i,1) = sqrt(csum((bootsort(:,i)-(csum(bootsort(:,i))/samples))&**2)/(samples-1)).
             *COMPUTE bootgrad = grade(bootsamp(:,i)). 
             *COMPUTE bootsort(bootgrad,i) = bootsamp(:,i). 
@@ -1490,12 +1496,13 @@ DO IF (criterr = 0).
             *    COMPUTE BootLLCI(1,i) = bootsort(LCII,i). 
             *    COMPUTE BootULCI(1,i) = bootsort(UCII,i). 
             *END IF. 
+             COMPUTE BootLLCI(1,i) = llcit. 
+             COMPUTE BootULCI(1,i) = ulcit.
          END LOOP.
          *DO IF (bc <>1). 
-             COMPUTE BootLLCI = bootsort(LCII, :). 
-             COMPUTE BootULCI = bootsort(UCII, :).
+
          *END IF.  
-         COMPUTE BootCI = {t(bootllci),t(bootulci)}. 
+         COMPUTE BootCI = {t(BootLLCI),t(BootULCI)}. 
          COMPUTE bootres = {indres, seboots, bootci}. 
          print bootres. 
 
@@ -3277,4 +3284,4 @@ END IF.
 
 end matrix. 
 !ENDDEFINE. 
-COMMENT BOOKMARK;LINE_NUM=1452;ID=1.
+COMMENT BOOKMARK;LINE_NUM=1458;ID=1.
