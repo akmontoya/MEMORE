@@ -1454,9 +1454,9 @@ DO IF (criterr = 0).
          COMPUTE BootLLCI = MAKE(1,ncol(bootsamp),0). 
          COMPUTE BootULCI = MAKE(1,ncol(bootsamp),0). 
          COMPUTE zalpha2 = sqrt(-2*ln(alpha/2)).
-         print zalpha2.
+         *print zalpha2.
          COMPUTE zalpha2 = (zalpha2+((((zalpha2*p4+p3)*zalpha2+p2)*zalpha2+p1)*zalpha2+p0)/((((zalpha2*q4+q3)*zalpha2+q2)*zalpha2+q1)*zalpha2+q0)).
-         print zalpha2.
+         *print zalpha2.
          *print (ncol(bootsamp)). 
          LOOP i = 1 TO ncol(bootsamp). 
              DO IF (bc = 1). 
@@ -1464,7 +1464,7 @@ DO IF (criterr = 0).
              ELSE IF (bc = 0). 
                  COMPUTE estbc = 9999.
              END IF. 
-             print estbc.
+             *print estbc.
              bcbootM dat = bootsamp(:,i) /est = estbc. 
              COMPUTE seboots(i,1) = sqrt(csum((bootsort(:,i)-(csum(bootsort(:,i))/samples))&**2)/(samples-1)).
             *COMPUTE bootgrad = grade(bootsamp(:,i)). 
@@ -1511,38 +1511,41 @@ DO IF (criterr = 0).
                  COMPUTE contsort = contsamp. 
                  COMPUTE ContLLCI = MAKE(1,ncol(contsamp),0). 
                  COMPUTE ContULCI = MAKE(1,ncol(contsamp),0). 
-                 LOOP i = 1 TO ncol(contsamp). 
-                    COMPUTE contgrad = grade(contsamp(:,i)). 
-                    COMPUTE contsort(contgrad,i) = contsamp(:,i). 
-                    COMPUTE contres(i,2) = sqrt(csum((contsort(:,i)-(csum(contsort(:,i))/samples))&**2)/(samples-1)).  
+                 LOOP i = 1 TO ncol(contsamp).  
                     DO IF (bc = 1). 
-                       COMPUTE bccicont(1,i) = csum(contsamp(:,i)<contres(i,1))/samples. 
-                       COMPUTE bccicont(2,i) = bccicont(1,i). 
-                       DO IF (bccicont(1,i) > .5). 
-                          COMPUTE bccicont(2,i) = 1-bccicont(1,i). 
-                       END IF. 
-                       COMPUTE bccicont(3,i) = sqrt(-2*ln(bccicont(2,i))). 
-                       COMPUTE bccicont(4,i) = bccicont(3,i)+((((bccicont(3,i)*p4+p3)*bccicont(3,i)+p2)*bccicont(3,i)+p1)*bccicont(3,i)+p0)/((((bccicont(3,i)*q4+q3)*bccicont(3,i)+q2)*bccicont(3,i)+q1)*bccicont(3,i)+q0).
-                       DO IF (bccicont(1,i) <= .5). 
-                          COMPUTE bccicont(4,i) = -bccicont(4,i). 
-                       END IF. 
-                       COMPUTE CBCLLII = (cdfnorm(2*bccicont(4,i)-zalpha2))*samples.
-                       COMPUTE CBCUCII = (cdfnorm(2*bccicont(4,i)+zalpha2))*samples.
-                       COMPUTE LCII = rnd(CBCLLII). 
-                       COMPUTE UCII = trunc(CBCUCII)+1. 
-                       DO IF (LCII < 1 OR UCII > samples). 
-                          COMPUTE runnotes(4, 1) = 4.  
-                          COMPUTE criterr = 1. 
-                          COMPUTE LCII = 1. 
-                          COMPUTE UCII = samples.
-                       END IF. 
-                       COMPUTE ContLLCI(1,i) = contsort(LCII,i). 
-                       COMPUTE ContULCI(1,i) = contsort(UCII,i).
-                 END IF. 
+                         COMPUTE estbc = contres(i,1). 
+                    ELSE IF (bc = 0). 
+                         COMPUTE estbc = 9999.
+                   END IF. 
+                   bcbootM dat = contsamp(:,i) /est = estbc. 
+                   COMPUTE contres(i,2) = sqrt(csum((contsort(:,i)-(csum(contsort(:,i))/samples))&**2)/(samples-1)).      
+                    *DO IF (bc = 1). 
+                    *   COMPUTE bccicont(1,i) = csum(contsamp(:,i)<contres(i,1))/samples. 
+                    *   COMPUTE bccicont(2,i) = bccicont(1,i). 
+                    *   DO IF (bccicont(1,i) > .5). 
+                    *      COMPUTE bccicont(2,i) = 1-bccicont(1,i). 
+                    *   END IF. 
+                    *   COMPUTE bccicont(3,i) = sqrt(-2*ln(bccicont(2,i))). 
+                   *    COMPUTE bccicont(4,i) = bccicont(3,i)+((((bccicont(3,i)*p4+p3)*bccicont(3,i)+p2)*bccicont(3,i)+p1)*bccicont(3,i)+p0)/((((bccicont(3,i)*q4+q3)*bccicont(3,i)+q2)*bccicont(3,i)+q1)*bccicont(3,i)+q0).
+                    *   DO IF (bccicont(1,i) <= .5). 
+                    *      COMPUTE bccicont(4,i) = -bccicont(4,i). 
+                    *   END IF. 
+                    *   COMPUTE CBCLLII = (cdfnorm(2*bccicont(4,i)-zalpha2))*samples.
+                    *   COMPUTE CBCUCII = (cdfnorm(2*bccicont(4,i)+zalpha2))*samples.
+                    *   COMPUTE LCII = rnd(CBCLLII). 
+                    *   COMPUTE UCII = trunc(CBCUCII)+1. 
+                    *   DO IF (LCII < 1 OR UCII > samples). 
+                    *      COMPUTE runnotes(4, 1) = 4.  
+                    *      COMPUTE criterr = 1. 
+                   *       COMPUTE LCII = 1. 
+                    *      COMPUTE UCII = samples.
+                   *    END IF. 
+                   *    COMPUTE ContLLCI(1,i) = contsort(LCII,i). 
+                   *    COMPUTE ContULCI(1,i) = contsort(UCII,i).
+                 *END IF. 
                  END LOOP.  
-                 DO IF (bc <>1). 
-                     COMPUTE ContLLCI = contsort(LCII, :). 
-                     COMPUTE ContULCI = contsort(UCII, :). 
+                 COMPUTE ContLLCI = llcit. 
+                 COMPUTE ContULCI = ulcit. 
                  END IF. 
                  COMPUTE ContCI = {t(contllci),t(contulci)}. 
                  COMPUTE contres(:,3:4) = contCI.  
