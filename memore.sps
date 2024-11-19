@@ -1947,7 +1947,7 @@ DO IF (((apathmod = 1) OR (bpathmod = 1))) AND (criterr = 0).
             END IF. 
             LOOP j = 1 TO ncol(cabsamps). 
                 DO IF (bc = 1). 
-                    COMPUTE estbc = cindres((i-1)*(dimmc+setswv)+j,1). 
+                    COMPUTE estbc = cindres((i-1)*(dimmc+setswv)+j,2). 
                 ELSE IF (bc = 0). 
                     COMPUTE estbc = 9999.
                 END IF. 
@@ -1956,7 +1956,7 @@ DO IF (((apathmod = 1) OR (bpathmod = 1))) AND (criterr = 0).
                 COMPUTE cindres((i-1)*(dimmc+setswv)+j,5) = ulcit. 
                 *COMPUTE sampgrad = grade(cabsamps(:,j)). 
                 *COMPUTE scabsamps(sampgrad,j) = cabsamps(:,j). 
-                *COMPUTE cindres((i-1)*(dimmc+setswv)+j,3) = sqrt(csum((scabsamps(:,j)-(csum(scabsamps(:,j))/samples))&**2)/(samples-1)).
+                COMPUTE cindres((i-1)*(dimmc+setswv)+j,3) = sqrt(csum((scabsamps(:,j)-(csum(scabsamps(:,j))/samples))&**2)/(samples-1)).
              END LOOP. 
              *COMPUTE cindres((1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),4) = t(scabsamps(LCII, :)). 
              *COMPUTE cindres((1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),5) = t(scabsamps(UCII, :)).
