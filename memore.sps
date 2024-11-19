@@ -93,6 +93,7 @@ define bcbootM(est = !charend('/') !default(9999) /dat = !charend('/')).
         print /title = "entered if". 
         COMPUTE bctemp=(!dat < make(nrow(!dat), 1, !est)).
         COMPUTE bctemp2=csum(bctemp)/samples.
+        print bctemp2. 
         COMPUTE bctemp3=bctemp2.
         DO IF(bctemp2 > .5).
             COMPUTE bctemp3=1-bctemp2. 
@@ -1504,7 +1505,7 @@ DO IF (criterr = 0).
          *END IF.  
          COMPUTE BootCI = {t(BootLLCI),t(BootULCI)}. 
          COMPUTE bootres = {indres, seboots, bootci}. 
-         print bootres. 
+         *print bootres. 
 
          DO IF  (contrast = 1) AND (Mpairs >1). 
                  COMPUTE bccicont = MAKE(4,ncol(contsamp), 0).
@@ -1517,8 +1518,12 @@ DO IF (criterr = 0).
                     ELSE IF (bc = 0). 
                          COMPUTE estbc = 9999.
                    END IF. 
+                   print estbc. 
                    bcbootM dat = contsamp(:,i) /est = estbc. 
-                   COMPUTE contres(i,2) = sqrt(csum((contsort(:,i)-(csum(contsort(:,i))/samples))&**2)/(samples-1)).      
+                   print llcit. 
+                   print ulcit. 
+                   COMPUTE contres(i,2) = sqrt(csum((contsort(:,i)-(csum(contsort(:,i))/samples))&**2)/(samples-1)).    
+                   print contres.   
                     *DO IF (bc = 1). 
                     *   COMPUTE bccicont(1,i) = csum(contsamp(:,i)<contres(i,1))/samples. 
                     *   COMPUTE bccicont(2,i) = bccicont(1,i). 
@@ -1542,11 +1547,10 @@ DO IF (criterr = 0).
                    *    END IF. 
                    *    COMPUTE ContLLCI(1,i) = contsort(LCII,i). 
                    *    COMPUTE ContULCI(1,i) = contsort(UCII,i).
-                 *END IF. 
+                 *END IF.              
+                       COMPUTE ContLLCI(1,i) = llcit. 
+                       COMPUTE ContULCI(1,i) = ulcit.
                  END LOOP.  
-                 COMPUTE ContLLCI = llcit. 
-                 COMPUTE ContULCI = ulcit. 
-                 END IF. 
                  COMPUTE ContCI = {t(contllci),t(contulci)}. 
                  COMPUTE contres(:,3:4) = contCI.  
          END IF. 
@@ -3287,4 +3291,4 @@ END IF.
 
 end matrix. 
 !ENDDEFINE. 
-COMMENT BOOKMARK;LINE_NUM=1458;ID=1.
+COMMENT BOOKMARK;LINE_NUM=1459;ID=1.
