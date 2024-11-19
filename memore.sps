@@ -150,7 +150,7 @@ define PROBRES (coef = !charend('/') /values = !charend('/') /semat = !charend('
     COMPUTE pbresmat(:,ncol(!values)+2) = sqrt(diag(values*!semat*t(values))). 
     COMPUTE pbresmat(:,ncol(!values)+3) = pbresmat(:,ncol(!values)+1)/pbresmat(:,ncol(!values)+2).  
     COMPUTE pbresmat(:,ncol(!values)+4) = 2*(1-tcdf(abs(pbresmat(:,ncol(!values)+3)), !df)).
-    CDFINVT p = temp/ df = !df. 
+    CDFINVT p = alpha2/ df = !df. 
     COMPUTE tcritb = toutput.
     COMPUTE pbresmat(:,(ncol(!values)+5):(ncol(!values)+6)) = {pbresmat(:,ncol(!values)+1)-tcritb*pbresmat(:,ncol(!values)+2), pbresmat(:,ncol(!values)+1)+tcritb*pbresmat(:,ncol(!values)+2)}.
 !enddefine. 
@@ -1946,12 +1946,20 @@ DO IF (((apathmod = 1) OR (bpathmod = 1))) AND (criterr = 0).
                 COMPUTE immres(i,4) = ulcit.
             END IF. 
             LOOP j = 1 TO ncol(cabsamps). 
-                COMPUTE sampgrad = grade(cabsamps(:,j)). 
-                COMPUTE scabsamps(sampgrad,j) = cabsamps(:,j). 
-                COMPUTE cindres((i-1)*(dimmc+setswv)+j,3) = sqrt(csum((scabsamps(:,j)-(csum(scabsamps(:,j))/samples))&**2)/(samples-1)).
+                DO IF (bc = 1). 
+                    COMPUTE estbc = cindres((i-1)*(dimmc+setswv)+j,1). 
+                ELSE IF (bc = 0). 
+                    COMPUTE estbc = 9999.
+                END IF. 
+                bcbootM dat = cabsamps(:,j) /est = estbc. 
+                COMPUTE cindres((i-1)*(dimmc+setswv)+j,4) = llcit. 
+                COMPUTE cindres((i-1)*(dimmc+setswv)+j,5) = ulcit. 
+                *COMPUTE sampgrad = grade(cabsamps(:,j)). 
+                *COMPUTE scabsamps(sampgrad,j) = cabsamps(:,j). 
+                *COMPUTE cindres((i-1)*(dimmc+setswv)+j,3) = sqrt(csum((scabsamps(:,j)-(csum(scabsamps(:,j))/samples))&**2)/(samples-1)).
              END LOOP. 
-             COMPUTE cindres((1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),4) = t(scabsamps(LCII, :)). 
-             COMPUTE cindres((1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),5) = t(scabsamps(UCII, :)).
+             *COMPUTE cindres((1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),4) = t(scabsamps(LCII, :)). 
+             *COMPUTE cindres((1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),5) = t(scabsamps(UCII, :)).
         END LOOP. 
 END IF. 
 
