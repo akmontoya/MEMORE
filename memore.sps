@@ -1933,11 +1933,17 @@ DO IF (((apathmod = 1) OR (bpathmod = 1))) AND (criterr = 0).
                 COMPUTE immsamp = {cabsamps(:,2) - cabsamps(:,1)}. 
                  *print (csum(immsamp)/samples).
                 COMPUTE immres(i,1) = condas(2,1)*condbs(2,1) - condas(1,1)*condbs(1,1). 
-                COMPUTE sampgrad = grade(immsamp).  
-                COMPUTE immsamp(sampgrad) = immsamp. 
                 COMPUTE immres(i,2) = sqrt(csum((immsamp-(csum(immsamp)/samples))&**2)/(samples-1)).
-                COMPUTE immres(i,3) = immsamp(LCII, :).  
-                COMPUTE immres(i,4) = immsamp(UCII, :).
+                *COMPUTE sampgrad = grade(immsamp).  
+                *COMPUTE immsamp(sampgrad) = immsamp. 
+                DO IF (bc = 1). 
+                      COMPUTE estbc = immres(i,1). 
+                ELSE IF (bc = 0). 
+                       COMPUTE estbc = 9999.
+                END IF. 
+                bcbootM dat = immsamp /est = estbc.               
+                COMPUTE immres(i,3) = llcit.  
+                COMPUTE immres(i,4) = ulcit.
             END IF. 
             LOOP j = 1 TO ncol(cabsamps). 
                 COMPUTE sampgrad = grade(cabsamps(:,j)). 
