@@ -1437,64 +1437,26 @@ DO IF (criterr = 0).
 
          COMPUTE bootsamp(:,ncol(bootsamp)) = rsum(bootsamp(:,1:(ncol(bootsamp)-1))).    
          COMPUTE indres(nrow(indres),1) = csum(indres).
-         *print (csum(bootsamp)/samples). 
          COMPUTE bootsort = bootsamp. 
          COMPUTE seboots = MAKE(nrow(indres), 1, 0).  
          COMPUTE bccires = MAKE(4, ncol(bootsamp), 0). 
          COMPUTE BootLLCI = MAKE(1,ncol(bootsamp),0). 
          COMPUTE BootULCI = MAKE(1,ncol(bootsamp),0). 
          COMPUTE zalpha2 = sqrt(-2*ln(alpha/2)).
-         *print zalpha2.
          COMPUTE zalpha2 = (zalpha2+((((zalpha2*p4+p3)*zalpha2+p2)*zalpha2+p1)*zalpha2+p0)/((((zalpha2*q4+q3)*zalpha2+q2)*zalpha2+q1)*zalpha2+q0)).
-         *print zalpha2.
-         *print (ncol(bootsamp)). 
          LOOP i = 1 TO ncol(bootsamp). 
              DO IF (bc = 1). 
                  COMPUTE estbc = indres(i,1). 
              ELSE IF (bc = 0). 
                  COMPUTE estbc = 9999.
              END IF. 
-             *print estbc.
              bcbootM dat = bootsamp(:,i) /est = estbc. 
              COMPUTE seboots(i,1) = sqrt(csum((bootsort(:,i)-(csum(bootsort(:,i))/samples))&**2)/(samples-1)).
-            *COMPUTE bootgrad = grade(bootsamp(:,i)). 
-            *COMPUTE bootsort(bootgrad,i) = bootsamp(:,i). 
-            *DO IF (bc = 1). 
-             *   COMPUTE bccires(1,i) = csum(bootsamp(:,i)<indres(i,1))/samples.
-            *    COMPUTE bccires(2,i) = bccires(1,i). 
-            *   DO IF (bccires(1,i) > .5). 
-            *       COMPUTE bccires(2,i) = 1-bccires(1,i). 
-            *    END IF.
-            *    COMPUTE bccires(3,i) = sqrt(-2*ln(bccires(2,i))). 
-            *    COMPUTE bccires(4,i) = bccires(3,i)+((((bccires(3,i)*p4+p3)*bccires(3,i)+p2)*bccires(3,i)+p1)*bccires(3,i)+p0)/((((bccires(3,i)*q4+q3)*bccires(3,i)+q2)*bccires(3,i)+q1)*bccires(3,i)+q0).
-            *    DO IF (bccires(1,i) <= .5). 
-            *       COMPUTE bccires(4,i) = -bccires(4,i). 
-            *    END IF. 
-            *    print bccires. 
-            *    COMPUTE BCLLII = (cdfnorm(2*bccires(4,i)-zalpha2))*samples.
-            *    COMPUTE BCUCII = (cdfnorm(2*bccires(4,i)+zalpha2))*samples.
-            *    print bcllii. 
-            *    print bcucii. 
-            *    COMPUTE LCII = rnd(BCLLII). 
-            *    COMPUTE UCII = trunc(BCUCII)+1. 
-            *    DO IF (LCII < 1 OR UCII > samples). 
-            *       COMPUTE runnotes(4, 1) = 4.  
-            *       COMPUTE criterr = 1. 
-            *       COMPUTE LCII = 1. 
-            *       COMPUTE UCII = samples.
-            *    END IF. 
-            *    COMPUTE BootLLCI(1,i) = bootsort(LCII,i). 
-            *    COMPUTE BootULCI(1,i) = bootsort(UCII,i). 
-            *END IF. 
              COMPUTE BootLLCI(1,i) = llcit. 
              COMPUTE BootULCI(1,i) = ulcit.
-         END LOOP.
-         *DO IF (bc <>1). 
-
-         *END IF.  
+         END LOOP. 
          COMPUTE BootCI = {t(BootLLCI),t(BootULCI)}. 
          COMPUTE bootres = {indres, seboots, bootci}. 
-         *print bootres. 
 
          DO IF  (contrast = 1) AND (Mpairs >1). 
                  COMPUTE bccicont = MAKE(4,ncol(contsamp), 0).
@@ -1508,31 +1470,7 @@ DO IF (criterr = 0).
                          COMPUTE estbc = 9999.
                    END IF. 
                    bcbootM dat = contsamp(:,i) /est = estbc. 
-                   COMPUTE contres(i,2) = sqrt(csum((contsort(:,i)-(csum(contsort(:,i))/samples))&**2)/(samples-1)).    
-                    *DO IF (bc = 1). 
-                    *   COMPUTE bccicont(1,i) = csum(contsamp(:,i)<contres(i,1))/samples. 
-                    *   COMPUTE bccicont(2,i) = bccicont(1,i). 
-                    *   DO IF (bccicont(1,i) > .5). 
-                    *      COMPUTE bccicont(2,i) = 1-bccicont(1,i). 
-                    *   END IF. 
-                    *   COMPUTE bccicont(3,i) = sqrt(-2*ln(bccicont(2,i))). 
-                   *    COMPUTE bccicont(4,i) = bccicont(3,i)+((((bccicont(3,i)*p4+p3)*bccicont(3,i)+p2)*bccicont(3,i)+p1)*bccicont(3,i)+p0)/((((bccicont(3,i)*q4+q3)*bccicont(3,i)+q2)*bccicont(3,i)+q1)*bccicont(3,i)+q0).
-                    *   DO IF (bccicont(1,i) <= .5). 
-                    *      COMPUTE bccicont(4,i) = -bccicont(4,i). 
-                    *   END IF. 
-                    *   COMPUTE CBCLLII = (cdfnorm(2*bccicont(4,i)-zalpha2))*samples.
-                    *   COMPUTE CBCUCII = (cdfnorm(2*bccicont(4,i)+zalpha2))*samples.
-                    *   COMPUTE LCII = rnd(CBCLLII). 
-                    *   COMPUTE UCII = trunc(CBCUCII)+1. 
-                    *   DO IF (LCII < 1 OR UCII > samples). 
-                    *      COMPUTE runnotes(4, 1) = 4.  
-                    *      COMPUTE criterr = 1. 
-                   *       COMPUTE LCII = 1. 
-                    *      COMPUTE UCII = samples.
-                   *    END IF. 
-                   *    COMPUTE ContLLCI(1,i) = contsort(LCII,i). 
-                   *    COMPUTE ContULCI(1,i) = contsort(UCII,i).
-                 *END IF.              
+                   COMPUTE contres(i,2) = sqrt(csum((contsort(:,i)-(csum(contsort(:,i))/samples))&**2)/(samples-1)).                   
                        COMPUTE ContLLCI(1,i) = llcit. 
                        COMPUTE ContULCI(1,i) = ulcit.
                  END LOOP.  
@@ -1862,7 +1800,6 @@ DO IF (((apathmod = 1) OR (bpathmod = 1))) AND (criterr = 0).
     COMPUTE immres = MAKE(mpairs, 4, -999). 
     COMPUTE cindres = MAKE((dimmc+setswv)*mpairs, 5, -999). 
     COMPUTE modmat = {MAKE(1, dimmc, 1); t(modcomb)}. 
-    *print modmat.
     DO IF (setswv > 0). 
           COMPUTE modmat = {modmat, ({MAKE(1, setswv, 1); t(modvmat)})}. 
     END IF.
@@ -1890,7 +1827,6 @@ DO IF (((apathmod = 1) OR (bpathmod = 1))) AND (criterr = 0).
             END IF. 
             
             DO IF (bpathmod = 1). 
-                *print (csum(bootsave)/samples).
                 DO IF (mc=0). 
                     COMPUTE bsamps = {bootsave(:,3+(1+apathmod)*mpairs+cppthmd+i), bootsave(:,3+(2+apathmod)*mpairs+cppthmd+i)}. 
                 ELSE IF (mc=1). 
@@ -1912,15 +1848,11 @@ DO IF (((apathmod = 1) OR (bpathmod = 1))) AND (criterr = 0).
              END IF.  
             COMPUTE cindres((1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),2) = condas&*condbs. 
             COMPUTE cabsamps = casamps&*cbsamps. 
-            *print (csum(cabsamps)/samples). 
             COMPUTE scabsamps = cabsamps. 
             DO IF (dimmc = 2).  
                 COMPUTE immsamp = {cabsamps(:,2) - cabsamps(:,1)}. 
-                 *print (csum(immsamp)/samples).
                 COMPUTE immres(i,1) = condas(2,1)*condbs(2,1) - condas(1,1)*condbs(1,1). 
                 COMPUTE immres(i,2) = sqrt(csum((immsamp-(csum(immsamp)/samples))&**2)/(samples-1)).
-                *COMPUTE sampgrad = grade(immsamp).  
-                *COMPUTE immsamp(sampgrad) = immsamp. 
                 DO IF (bc = 1). 
                       COMPUTE estbc = immres(i,1). 
                 ELSE IF (bc = 0). 
@@ -1939,12 +1871,8 @@ DO IF (((apathmod = 1) OR (bpathmod = 1))) AND (criterr = 0).
                 bcbootM dat = cabsamps(:,j) /est = estbc. 
                 COMPUTE cindres((i-1)*(dimmc+setswv)+j,4) = llcit. 
                 COMPUTE cindres((i-1)*(dimmc+setswv)+j,5) = ulcit. 
-                *COMPUTE sampgrad = grade(cabsamps(:,j)). 
-                *COMPUTE scabsamps(sampgrad,j) = cabsamps(:,j). 
                 COMPUTE cindres((i-1)*(dimmc+setswv)+j,3) = sqrt(csum((scabsamps(:,j)-(csum(scabsamps(:,j))/samples))&**2)/(samples-1)).
              END LOOP. 
-             *COMPUTE cindres((1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),4) = t(scabsamps(LCII, :)). 
-             *COMPUTE cindres((1+(i-1)*(dimmc+setswv)):(i*(dimmc+setswv)),5) = t(scabsamps(UCII, :)).
         END LOOP. 
 END IF. 
 
@@ -3290,4 +3218,3 @@ END IF.
 
 end matrix. 
 !ENDDEFINE. 
-COMMENT BOOKMARK;LINE_NUM=1448;ID=1.
