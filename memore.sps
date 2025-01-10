@@ -7,10 +7,6 @@
 /* Documentation available online at github.com/akmontoya/memore*/.
 /* Report bugs or issues at github.com/akmontoya/memore*/.
 
-
-preserve. 
-set printback=off.
-
 /* Permission is hereby granted, free of charge, to any person obtaining a copy of this */.
 /* software and associated documentation files (the "Software"), to use the software */.
 /* in this form.  Distribution after modification is prohibited, as is its use for any */.  
@@ -3218,3 +3214,4 @@ END IF.
 
 end matrix. 
 !ENDDEFINE. 
+restore. 
