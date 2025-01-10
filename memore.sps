@@ -84,34 +84,24 @@ define SOBEL(a = !charend('/') /sea = !charend('/') /b = !charend('/') /seb = !c
 !enddefine. 
 
 define bcbootM(est = !charend('/') !default(9999) /dat = !charend('/')).  
-    COMPUTE tdat=!dat.
-    *print tdat. 
+    COMPUTE tdat=!dat. 
     COMPUTE tdat(grade(tdat))=!dat.
-    *print tdat. 
-    print (!est). 
-    *print (!dat < make(nrow(!dat), 1, !est)).
     DO IF (!est <> 9999).
-        print /title = "entered if". 
         COMPUTE bctemp=(!dat < make(nrow(!dat), 1, !est)).
         COMPUTE bctemp2=csum(bctemp)/samples.
-        print bctemp2. 
         COMPUTE bctemp3=bctemp2.
         DO IF(bctemp2 > .5).
             COMPUTE bctemp3=1-bctemp2. 
         END IF. 
-        print bctemp3. 
         COMPUTE bctemp4=sqrt(-2*ln(bctemp3)).
         COMPUTE bctemp5=bctemp4+((((bctemp4*p4+p3)*bctemp4+p2)*bctemp4+p1)*bctemp4+p0)/((((bctemp4*q4+q3)*bctemp4+q2)*bctemp4+q1)*bctemp4+q0).
         DO IF (bctemp2 <= .5).
             COMPUTE bctemp5=-bctemp5.
         END IF. 
-        print bctemp5. 
         COMPUTE bcllii=cdfnorm(2*bctemp5-zalpha2)*nrow(!dat).
        COMPUTE bcucii=cdfnorm(2*bctemp5+zalpha2)*nrow(!dat).
         COMPUTE bcllii=rnd(bcllii).
-        print bcllii. 
         COMPUTE bcucii=trunc(bcucii)+1.
-        print bcucii. 
         DO IF ((bcllii < 1) OR (bcucii > nrow(!dat))).
 	COMPUTE runnotes(4,1)=4.
                   COMPUTE criterr=1.
@@ -119,13 +109,11 @@ define bcbootM(est = !charend('/') !default(9999) /dat = !charend('/')).
                   COMPUTE bcucii=nrow(!dat).
         END IF. 
         COMPUTE llcit=tdat(bcllii,1).
-        print llcit. 
        COMPUTE ulcit=tdat(bcucii,1).
-       print ulcit. 
     END IF.  
    DO IF (!est = 9999).
        COMPUTE llcit=tdat(lcii,1).
-        COMPUTE ulcit = tdat(ucii,1).
+       COMPUTE ulcit = tdat(ucii,1).
     END IF. 
 !enddefine.
 
@@ -1519,12 +1507,8 @@ DO IF (criterr = 0).
                     ELSE IF (bc = 0). 
                          COMPUTE estbc = 9999.
                    END IF. 
-                   print estbc. 
                    bcbootM dat = contsamp(:,i) /est = estbc. 
-                   print llcit. 
-                   print ulcit. 
                    COMPUTE contres(i,2) = sqrt(csum((contsort(:,i)-(csum(contsort(:,i))/samples))&**2)/(samples-1)).    
-                   print contres.   
                     *DO IF (bc = 1). 
                     *   COMPUTE bccicont(1,i) = csum(contsamp(:,i)<contres(i,1))/samples. 
                     *   COMPUTE bccicont(2,i) = bccicont(1,i). 
@@ -3306,4 +3290,4 @@ END IF.
 
 end matrix. 
 !ENDDEFINE. 
-COMMENT BOOKMARK;LINE_NUM=1460;ID=1.
+COMMENT BOOKMARK;LINE_NUM=1448;ID=1.
