@@ -1,10 +1,11 @@
 ﻿* Encoding: UTF-8.
-/* MEMORE for SPSS Version 3.Beta*/.
-/* Copyright 2021 */.
+/* MEMORE for SPSS Version 3.0*/.
+/* Copyright 2025 */.
 /* by Amanda Kay Montoya */.
 /* akmontoya.com*/.
-/* Documentation available online at akmontoya.com */.
-/* or by email to akmontoya@ucla.edu */.
+/* akmontoya@ucla.edu */.
+/* Documentation available online at github.com/akmontoya/memore*/.
+/* Report bugs or issues at github.com/akmontoya/memore*/.
 
 
 preserve. 
@@ -3305,4 +3306,4 @@ END IF.
 
 end matrix. 
 !ENDDEFINE. 
-COMMENT BOOKMARK;LINE_NUM=1459;ID=1.
+COMMENT BOOKMARK;LINE_NUM=1460;ID=1.
