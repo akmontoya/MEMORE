@@ -213,7 +213,7 @@ set mxloop = 100000000.
 set seed = !seed. 
    
 matrix. 
-COMPUTE runnotes = MAKE(31,1,0). 
+COMPUTE runnotes = MAKE(32,1,0). 
 COMPUTE criterr = 0.  
 COMPUTE model = !model. 
 COMPUTE modelmt2 = {1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16; 17; 18}. 
@@ -360,6 +360,11 @@ COMPUTE anymod = (anymod > 0).
     !ifend.
   !doend.
 !doend.
+
+DO IF ((xmint = 0) AND (dpathmod = 1)). 
+    COMPUTE runnotes(1,32) = 1. 
+    COMPUTE criterr = 1. 
+END IF. 
 
 DO IF (criterr <> 1). 
    DO IF (missing > 0). 
@@ -2102,6 +2107,9 @@ LOOP i = 1 to nrow(runnotes).
    ELSE IF (runnotes(i,1) = 31). 
       PRINT /title = "NOTE: Both Monte Carlo Confidence Interval and Bias-Correction Bootstrap ". 
       PRINT /title = "       Confidence Interval were selected. Monte Carlo CI was calculated." /space = 0.
+   ELSE IF (runnotes(i,1) = 32). 
+       PRINT /title = "ERROR: xmint = 0 was specified for a model which moderates the XM interaction. "
+       print /title = "       Either change xmint settings or select a different model number".   
    END IF. 
 END LOOP.
 
