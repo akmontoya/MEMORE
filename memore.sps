@@ -358,7 +358,7 @@ COMPUTE anymod = (anymod > 0).
 !doend.
 
 DO IF ((xmint = 0) AND (dpathmod = 1)). 
-    COMPUTE runnotes(1,32) = 1. 
+    COMPUTE runnotes(32,1) = 32. 
     COMPUTE criterr = 1. 
 END IF. 
 
