@@ -2998,7 +2998,7 @@ DO IF ((model = 1) OR (model > 3)).
                     
                     print /title = !quote(!line0)/space=1. 
                     print /title = !quote(!line1)/space=1.
-                    print dplotdat((1+(i-1)*9):(i*9),:) /title = " "/format = !decimals/space=0.
+                    print dplotdat((1+(i-1)*(3*(3-csum(dich(:,1))))):(i*(3*(3-csum(dich(:,1))))),:) /title = " "/format = !decimals/space=0.
                     print /title = !quote(!line6)/space=1.
                     !let !line7 = !concat("GRAPH/SCATTERPLOT = ", "Mavg", " WITH ", "YdiffHAT ", "BY ", !HEAD(!w),".").
                     print /title = !quote(!line7)/space=1. 
