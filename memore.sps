@@ -1197,9 +1197,6 @@ DO IF (criterr = 0).
                 COMPUTE bootdat = dataT(sortvar(:,1),:).  
                 DO IF (xmint = 1).
                   LOOP j = 1 TO Mpairs. 
-                      *DO IF (i = 1). 
-                      *    print bootdat. 
-                      *END IF. 
                       COMPUTE summean = csum(bootdat(:,2*j+(1-(anymod=0))))/N.
                       COMPUTE bootdat(:,2*j+(1-(anymod=0))) = bootdat(:,2*j+(1-(anymod=0))) - summean.
                   END LOOP.
@@ -3241,4 +3238,4 @@ END IF.
 end matrix. 
 !ENDDEFINE. 
 restore. 
-COMMENT BOOKMARK;LINE_NUM=2034;NAME=Beginning of Output;ID=1.
+COMMENT BOOKMARK;LINE_NUM=2031;NAME=Beginning of Output;ID=1.
