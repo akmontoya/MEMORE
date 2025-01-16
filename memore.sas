@@ -1829,12 +1829,12 @@ end; *4;
 	
 end; *1;
 
-print "************************ MEMORE Procedure for SAS Version 3.0 *************************";
+print "************************ MEMORE Procedure for SAS Version 3.0 ************************";
 print "Written by Amanda K. Montoya and Andrew F. Hayes";
 print "Documentation available at github.com/akmontoya/MEMORE";
 
 
-print "*************************** ANALYSIS NOTES AND WARNINGS ******************************";
+print "*************************** ANALYSIS NOTES AND WARNINGS ***************************";
 print "Check SAS log for errors.  Do not interpret output if errors are found. Contact akmontoya@ucla.edu if errors persist.";
 do i = 1 to nrow(runnotes);
   if (runnotes[i,1]=1) then;do;
@@ -2378,12 +2378,12 @@ if((model=1)|(model>=4)) then; do;
 	collab = "Effect"||"SE"||"t"||"df"||"p"||"LLCI"||"ULCI";
 	 rwnme=" ";
 	if(anymod = 0) then; do; 
-		 print "*********************** TOTAL, DIRECT, AND INDIRECT EFFECTS *****************************";
+		 print "************************* TOTAL, DIRECT, AND INDIRECT EFFECTS *************************";
 		 cresmat = t(cresmat[1:3]) || dfcpath || t(cresmat[4:6]);
 		 print cresmat [label = "Total effect of X on Y" colname=collab rowname = rwnme format = &decimals];
 	end; *if(anymod = 0);
 	if(anymod >0) then; do;
-		print "***************** CONDITIONAL TOTAL, DIRECT, AND INDIRECT EFFECTS ***********************";
+		print "********************* CONDITIONAL TOTAL, DIRECT, AND INDIRECT EFFECTS *********************";
 		if(setswv>0) then; do;
 			XYgWres = XYgWres//XYgWvres;
 		end; *if(setswv>0);
@@ -2533,7 +2533,7 @@ end; *if ((apathmod=1)|(bpathmod=1));
   print contkey [label = "Contrast definitions:" rowname = contlab];
  end; *if ((contrast=1) & (mpairs > 1));
 if(anymod >0) then; do;
-	print "************************* INDICES OF MODERATION ************************************";
+	print "********************************* INDICES OF MODERATION *********************************";
 	cresmat = cresmat[2:(1+Wcount), 1:3]||M4df2||cresmat[2:(1+Wcount),4:6];
 	print cresmat [label = "Test of Moderation of the Total Effect" rowname="W" colname =collab format=&decimals];
 	if(cppthmd=1) then; do;
@@ -2559,7 +2559,7 @@ if(anymod >0) then; do;
 
 
 	if (plot = 1) then; do;
-		print "************************************ PLOTS ******************************************";
+		print "****************************************** PLOTS ******************************************";
 		plotcol = wnames;
 		if(apathmod = 1) then; do;
 			if(mpairs = 1) then plotcol = plotcol||"MdiffHAT";
@@ -2634,7 +2634,7 @@ if ((model = 2) | (model = 3)) then; do; *11;
 		print df2 [label = "Degrees of freedom for all conditional effects:"];
 	end;
 	if (jn = 1) then; do;
-		print "*************************** JOHNSON-NEYMAN PROCEDURE ******************************";
+		print "****************************** JOHNSON-NEYMAN PROCEDURE ******************************";
 		if (numJN ^= 0) then; do;
 			print (JNsoln || t(pcntabv)) [label = "Moderator value(s) defining Johnson-Neyman significance region(s) and percent of observed data above value:" colname = {"Value" "% Abv"} format = &decimals];
 		end;
