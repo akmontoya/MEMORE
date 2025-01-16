@@ -180,25 +180,25 @@ define JNprobe (coefone = !charend('/') /coeftwo = !charend('/') /seone = !chare
         END IF.  
     ELSE IF ((bquad**2 - 4*cquad*aquad) < 0). 
         COMPUTE NumJN = 0. 
-    END IF.  
-    DO IF (NumJN > 0). 
-        COMPUTE JNWcomb = MAKE(20+numJN,2,1).
-        COMPUTE MinW = MMIN(moddat(:,1)). 
-        COMPUTE MaxW = MMAX(moddat(:,1)). 
-        COMPUTE Range = MaxW - minW. 
-        LOOP i = 1 TO 20. 
-            COMPUTE JNWcomb(i,2) = MinW+(Range)/19*(i-1). 
-        END LOOP.  
+    END IF.   
+    COMPUTE JNWcomb = MAKE(20+numJN,2,1).
+    COMPUTE MinW = MMIN(moddat(:,1)). 
+    COMPUTE MaxW = MMAX(moddat(:,1)). 
+    COMPUTE Range = MaxW - minW. 
+    LOOP i = 1 TO 20. 
+        COMPUTE JNWcomb(i,2) = MinW+(Range)/19*(i-1). 
+    END LOOP.  
+    DO IF (numJN > 0).
         COMPUTE JNWcomb(21:(20+numJN),2) = JNsoln.
-        COMPUTE JNgrad = grade(JNWcomb(:,2)).
-        COMPUTE JNWcomb(JNgrad,2) = JNWcomb(:,2). 
-        COMPUTE JNres = {JNWcomb(:,2), MAKE(nrow(JNWcomb), 6, -999)}.
-        COMPUTE JNres(:,2) = JNWcomb*{coefOne;coefTwo }. 
-        COMPUTE JNres(:,3) = sqrt(diag(JNWcomb*{seOne , cov ; cov , seTwo }*t(JNWcomb))). 
-        COMPUTE JNres(:,4) = JNres(:,2)/JNres(:,3).  
-        COMPUTE JNres(:,5) = 2*(1-tcdf(abs(JNres(:,4)), dfJN )).
-        COMPUTE JNres(:,6:7) = {JNres(:,2)-critt*JNres(:,3), JNres(:,2)+critt*JNres(:,3)}.
     END IF. 
+    COMPUTE JNgrad = grade(JNWcomb(:,2)).
+    COMPUTE JNWcomb(JNgrad,2) = JNWcomb(:,2). 
+    COMPUTE JNres = {JNWcomb(:,2), MAKE(nrow(JNWcomb), 6, -999)}.
+    COMPUTE JNres(:,2) = JNWcomb*{coefOne;coefTwo }. 
+    COMPUTE JNres(:,3) = sqrt(diag(JNWcomb*{seOne , cov ; cov , seTwo }*t(JNWcomb))). 
+    COMPUTE JNres(:,4) = JNres(:,2)/JNres(:,3).  
+    COMPUTE JNres(:,5) = 2*(1-tcdf(abs(JNres(:,4)), dfJN )).
+    COMPUTE JNres(:,6:7) = {JNres(:,2)-critt*JNres(:,3), JNres(:,2)+critt*JNres(:,3)}.
 *Outputs JNres: (20 row matrix with all probed points). 
 *            JNsoln: list of all the JN solutions.
 *            Pcntabv: percent of sample above each of the JN solutions.  
@@ -1791,7 +1791,7 @@ END IF.
                  COMPUTE dplotdes = {dplotdes, MAvecrep&*longW}. 
                  COMPUTE dplotdat((1+(j-1)*dimmc*3):(j*dimmc*3), : ) = {longW, MAvecrep, dplotdes*dpvec}.  
                  DO IF (jn = 1).  
-                     JNprobe coefOne = dvec(1,1) /coefTwo = dvec(2,1) /seOne = dse(1,1) /seTwo = dse(2,2) /cov = dse(2,1) /critt = tcritb /dfJN = df2.
+                     JNprobe coefOne = dvec(1,1) /coefTwo = dvec(2,1) /seOne = dse(1,1) /seTwo = dse(2,2) /cov = dse(2,1) /critt = tcritd /dfJN = df2.
                      compute dNumJN(j,:) = NumJN.
                      compute dJNres((1+22*(j-1)):(20+NumJN+22*(j-1)),:) = JNres. 
                      DO IF (NumJN > 0). 
@@ -2268,7 +2268,7 @@ DO IF (criterr = 0).
     end if. 
     DO IF ((model = 1) OR (model >= 4)). 
        print {"Ydiff =" , ynames(1,1), ' - ', ynames(1,2)} /title = "**************************************************************************************" /rlabels = "Outcome:" /format = A8.
-       COMPUTE collab = {"Effect", "SE", "t", "p", "LLCI", "ULCI"}. 
+       COMPUTE collab = {"Coef", "SE", "t", "p", "LLCI", "ULCI"}. 
         DO IF (anymod=1). 
             print cmodsum /title = "Model Summary" /clabels = "R", "R-sq", "MSE", "F" , "df1" , "df2", "p" /format = !decimals. 
         END IF. 
@@ -2450,7 +2450,7 @@ ELSE IF ((Model = 2) OR (model = 3)).
       COMPUTE modlabs = {modlabs; t(intlabs(1,1:nint))}. 
    END IF. 
 END IF. 
-print modres /title "Model" /rnames = modlabs /clabels = "coeff" , "SE", "t", "p", "LLCI", "ULCI" /format = !decimals.
+print modres /title "Model" /rnames = modlabs /cnames = collab /format = !decimals.
 print df2 /title = "Degrees of freedom for all regression coefficient estimates:".
 
 DO IF (cppthmd = 1).
