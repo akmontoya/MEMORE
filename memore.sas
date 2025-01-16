@@ -208,7 +208,7 @@ end;
   wmodval1 = 999.99, wmodval2 = 999.99, wmodval3 = 999.99, model = 1);
 options pagesize=32767;
 proc iml;
-runnotes=j(31,1,0);
+runnotes=j(32,1,0);
 criterr=0;
 model = &model; 
 modelmt2 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
@@ -323,12 +323,13 @@ if(any(model=dtvec))then;do;
 	dpathmod = 1;
 end;
 
-if(xmint=0)then;do;
-	dpathmod = 0;
-end;
-
 anymod = apathmod+bpathmod+cppthmd+dpathmod;
 anymod = (anymod > 0);
+
+if ((xmint = 0) & (dpathmod = 1)) then; do;
+	runnotes[32,1] = 32;
+	criterr = 1;
+end;
 
 if(criterr ^= 1) then; do;
 	if (missing > 0) then;do;runnotes[1,1]=1;end;
@@ -2125,7 +2126,7 @@ print "*************************** ANALYSIS NOTES AND WARNINGS *****************
 print "Check SAS log for errors.  Do not interpret output if errors are found. Contact akmontoya@ucla.edu if errors persist.";
 do i = 1 to nrow(runnotes);
   if (runnotes[i,1]=1) then;do;
-    print missing [label="NOTE: Somecases were deleted due to missing data.  The number of cases was:"];
+    print missing [label="NOTE: Some cases were deleted due to missing data.  The number of cases was:"];
   end;
   if (runnotes[i,1]=2) then;do;
     print "ERROR: Exactly two Y variables must be provided in the Y= list.";
@@ -2218,6 +2219,9 @@ do i = 1 to nrow(runnotes);
   if (runnotes[i,1] = 31) then; do;
   	print "NOTE: Both Monte Carlo Confidence Interval and Bias-Correction Bootstrap Confidence Interval were selected. Monte Carlo CI was calculated.";
   end;
+  if (runnotes[i,1] = 32) then; do;
+  	print "ERROR: xmint = 0 was specified for a model which moderates the XM interaction. Either change xmint settings or select a different model number.";
+  end;
 end;
 
 
@@ -2245,7 +2249,7 @@ if ((model = 1)|(model > 3)) then; do; *10;
 	  end;
 	  print centvars [label = "The following variables were mean centered prior to analysis:"];
   end; *if (xmint = 1);
-end; *if (criterr=0);
+
 end; *if ((model = 1)|(model > 3));
 
 
@@ -2268,7 +2272,7 @@ if ((model ^= 1)&(center>0)) then; do;
 end; *if ((model ^= 1)&(center>0)) ;
 print conf [label = "Level of confidence for all confidence intervals in output:"];	
 
-
+end; *if (criterr=0);
 
 
 if (criterr = 0) then;do; *5;

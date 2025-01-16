@@ -325,10 +325,6 @@ DO IF (any(model = dtvec)).
     COMPUTE dpathmod = 1. 
 END IF. 
 
-DO IF (xmint = 0).
-    COMPUTE dpathmod = 0. 
-END IF. 
-
 COMPUTE anymod = apathmod+bpathmod+cppthmd+dpathmod. 
 COMPUTE anymod = (anymod > 0). 
 
@@ -3245,4 +3241,4 @@ END IF.
 end matrix. 
 !ENDDEFINE. 
 restore. 
-COMMENT BOOKMARK;LINE_NUM=2038;NAME=Beginning of Output;ID=1.
+COMMENT BOOKMARK;LINE_NUM=2034;NAME=Beginning of Output;ID=1.
