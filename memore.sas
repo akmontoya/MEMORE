@@ -1,28 +1,30 @@
-* MEMORE for SAS Version 3.Beta;
-* Copyright 2024;
-* by Amanda K. Montoya and Andrew F Hayes;
-* Documentation available online at www.akmontoya.com;
-* or by email to akmontoya@ucla.edu;
+* MEMORE for SAS Version 3.0;
+* Copyright 2025 ;
+* by Amanda Kay Montoya and Andrew F. Hayes;
+* akmontoya.com;
+* akmontoya@ucla.edu ;
+* Documentation available online at github.com/akmontoya/memore;
+* Report bugs or issues at github.com/akmontoya/memore;
 
-* Permission is hereby granted, free of charge, to any person obtaining a copy of this software;
-* and associated documentation files (the "Software"), to use the software in this form.  Distribution;
-* after modification is prohibited, as is its use for any commercial purpose without authorization;  
-* This software should not be posted or stored on any webpage, server, or directory accessible to;
-* the public whether free or for a charge unless written permission has been granted by the copyright;
-* holder.  The copyright holder requests that this software be distributed by directing users to;
-* afhayes.com where the latest release of the software and related documentation is archived and;
-* can be downloaded;
+* Permission is hereby granted, free of charge, to any person obtaining a copy of this ;
+* software and associated documentation files (the "Software"), to use the software ;
+* in this form.  Distribution after modification is prohibited, as is its use for any ;  
+* commercial purpose without authorization. This software should not be posted or ;
+* stored on any webpage, server, or directory accessible to the public whether free ;
+* or for a charge unless written permission has been granted by the copyright holder.;
+* The copyright holder requests that this software be distributed by directing users ;
+* to akmontoya.com where the latest release of the software and documentation is ;
+* archived and  can be downloaded.*/.
 
 * THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, ;
 * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF ;
 * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT ;
 * IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, ;
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT ;
+*  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT ;
 * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE ;
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE ;
 
-* The above text should be included in any distribution of the software;
-
+* The above text should be included in any distribution of the software ;
 
 %macro cdfinvt (p=,df=);
 p0=-.322232431088;p1=-1;p2=-.342242088547;p3=-.0204231210245;p4=-.0000453642210148;
