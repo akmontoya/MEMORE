@@ -506,7 +506,7 @@ END IF.
 
 COMPUTE Conf = !Conf. 
 DO IF (!Conf < 50 OR !Conf > 99.99). 
-   COMPUTE Conf = 95. 
+   COMPUTE conf = 95. 
    COMPUTE runnotes (5, 1) = 5. 
 END IF. 
 
@@ -1582,9 +1582,12 @@ END IF.
             
             DO IF (jn = 1).  
                  JNprobe coefOne = cvec(1,1) /coefTwo = cvec(2,1) /seOne = sem4cmat(1,1) /seTwo = sem4cmat(2,2) /cov = sem4cmat(2,1) /critt = tcritc /dfJN = M4df2. 
+                 compute cNumJN = NumJN.
                  compute cJNres = JNres. 
-                 compute cJNsoln = JNsoln. 
-                 compute cPcntabv = Pcntabv. 
+                 DO IF (cNumJN > 0). 
+                     compute cJNsoln = JNsoln. 
+                     compute cPcntabv = Pcntabv. 
+                 END IF. 
              END IF. 
            
        END IF. 
@@ -1619,8 +1622,8 @@ END IF.
                 DO IF (jn = 1).  
                      JNprobe coefOne = avec(1,1) /coefTwo = avec(2,1) /seOne = ase(1,1) /seTwo = ase(2,2) /cov = ase(2,1) /critt = tcrita /dfJN = M3df2.
                      compute aNumJN(j,:) = NumJN.
+                     compute aJNres((1+22*(j-1)):(20+NumJN+22*(j-1)),:) = JNres. 
                      DO IF (NumJN > 0). 
-                         compute aJNres((1+22*(j-1)):(20+NumJN+22*(j-1)),:) = JNres. 
                          compute aJNsoln(j,1:NumJN) = t(JNsoln). 
                          compute aPcntabv(j,1:NumJN) = Pcntabv. 
                      END IF.  
@@ -1674,8 +1677,8 @@ END IF.
                  DO IF (jn = 1).  
                      JNprobe coefOne = bvec(1,1) /coefTwo = bvec(2,1) /seOne = bse(1,1) /seTwo = bse(2,2) /cov = bse(2,1) /critt = tcritb /dfJN = df2.
                      compute bNumJN(j,:) = NumJN.
+                     compute bJNres((1+22*(j-1)):(20+NumJN+22*(j-1)),:) = JNres.
                      DO IF (NumJN > 0).  
-                         compute bJNres((1+22*(j-1)):(20+NumJN+22*(j-1)),:) = JNres. 
                          compute bJNsoln(j,1:NumJN) = t(JNsoln). 
                          compute bPcntabv(j,1:NumJN) = Pcntabv. 
                      END IF.  
@@ -1734,9 +1737,12 @@ END IF.
             COMPUTE cppltdat = {XYgWcMrs(:,1), XYgWcMrs(:,2+MPairs*xmint)}. 
             DO IF (jn = 1).  
                  JNprobe coefOne = cpvec(1,1) /coefTwo = cpvec(2,1) /seOne = cpse(1,1) /seTwo = cpse(2,2) /cov = cpse(2,1) /critt = tcritcp /dfJN = df2. 
-                 compute cpJNres = JNres. 
-                 compute cpJNsoln = JNsoln. 
-                 compute cpPcntabv = Pcntabv. 
+                 compute cpnumJN = numJN. 
+                 compute cpJNres = JNres.
+                 DO IF (cpnumJN <> 0). 
+                     compute cpJNsoln = JNsoln. 
+                     compute cpPcntabv = Pcntabv. 
+                 END IF. 
              END IF.
             
         END IF. 
@@ -1787,8 +1793,8 @@ END IF.
                  DO IF (jn = 1).  
                      JNprobe coefOne = dvec(1,1) /coefTwo = dvec(2,1) /seOne = dse(1,1) /seTwo = dse(2,2) /cov = dse(2,1) /critt = tcritb /dfJN = df2.
                      compute dNumJN(j,:) = NumJN.
+                     compute dJNres((1+22*(j-1)):(20+NumJN+22*(j-1)),:) = JNres. 
                      DO IF (NumJN > 0). 
-                         compute dJNres((1+22*(j-1)):(20+NumJN+22*(j-1)),:) = JNres. 
                          compute dJNsoln(j,1:NumJN) = t(JNsoln). 
                          compute dPcntabv(j,1:NumJN) = Pcntabv. 
                      END IF.  
@@ -2108,7 +2114,7 @@ LOOP i = 1 to nrow(runnotes).
       PRINT /title = "NOTE: Both Monte Carlo Confidence Interval and Bias-Correction Bootstrap ". 
       PRINT /title = "       Confidence Interval were selected. Monte Carlo CI was calculated." /space = 0.
    ELSE IF (runnotes(i,1) = 32). 
-       PRINT /title = "ERROR: xmint = 0 was specified for a model which moderates the XM interaction. "
+       PRINT /title = "ERROR: xmint = 0 was specified for a model which moderates the XM interaction. ".
        print /title = "       Either change xmint settings or select a different model number".   
    END IF. 
 END LOOP.
@@ -2296,13 +2302,15 @@ DO IF (criterr = 0).
        DO IF (jn = 1). 
             print /title = "--------------------------------------------------------------------------------------".
             print /title = "                    JOHNSON-NEYMAN PROCEDURE: Total Effect Model". 
-            DO IF (ncol(cJNsoln) <> 0). 
+            DO IF (cnumJN <> 0). 
             print /title = "Moderator value(s) defining Johnson-Neyman significance region(s) and percent of ".
             print {cJNsoln, t(cpcntabv)} /title "observed data above value:" /clabels = "Value", "% Abv" /format = !decimals /space = 0. 
             print cJNRes /title = "Conditional Total Effect of 'X' on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
             print M4df2 /title = "Degrees of freedom for all conditional effects:".
-            ELSE IF (ncol(cJNsoln) = 0). 
-            print /title = "There are no statistically significant transition points within the observed range of data.". 
+            ELSE IF (cnumJN = 0). 
+            print /title = "There are no transition points of statistical significance within the observed range of the moderator.". 
+            print cJNRes /title = "Conditional Total Effect of 'X' on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
+            print M4df2 /title = "Degrees of freedom for all conditional effects:".
             END IF. 
         END IF. 
 
@@ -2377,7 +2385,9 @@ DO IF (criterr = 0).
                         print aJNres((1+22*(j-1)):(20+aNumJN(j,1)+22*(j-1)),:) /title = "Conditional Effect of 'X' on M at values of moderator" /cnames = XMgWlabs /format = !decimals.
                         print M3df2 /title = "Degrees of freedom for all conditional effects:".
                     ELSE IF (aNumJN(j,1) = 0). 
-                        print /title = "There are no statistically significant transition points within the observed range of data.". 
+                        print /title = "There are no transition points of statistical significance within the observed range of the moderator.". 
+                        print aJNres((1+22*(j-1)):(20+aNumJN(j,1)+22*(j-1)),:) /title = "Conditional Effect of 'X' on M at values of moderator" /cnames = XMgWlabs /format = !decimals.
+                        print M3df2 /title = "Degrees of freedom for all conditional effects:".
                     END IF. 
                 END IF. 
               
@@ -2481,12 +2491,13 @@ DO IF (cppthmd = 1).
     
     DO IF (jn = 1). 
             print /title = "                    JOHNSON-NEYMAN PROCEDURE: Direct Effect". 
-            DO IF (ncol(cpJNsoln) <> 0). 
-            print /title = "Moderator value(s) defining Johnson-Neyman significance region(s) and percent of ".
-            print {cpJNsoln, t(cppcntabv)} /title "observed data above value:" /clabels = "Value", "% Abv" /format = !decimals /space = 0. 
-            print cpJNRes /title = "Conditional Direct Effect of 'X' on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
-            ELSE IF (ncol(cJNsoln) = 0). 
-            print /title = "There are no statistically significant transition points within the observed range of data.". 
+            DO IF (cpnumJN <> 0). 
+                print /title = "Moderator value(s) defining Johnson-Neyman significance region(s) and percent of ".
+                print {cpJNsoln, t(cppcntabv)} /title "observed data above value:" /clabels = "Value", "% Abv" /format = !decimals /space = 0. 
+                print cpJNRes /title = "Conditional Direct Effect of 'X' on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
+            ELSE IF (cpnumJN = 0). 
+                print /title = "There are no transition points of statistical significance within the observed range of the moderator.". 
+                print cpJNRes /title = "Conditional Direct Effect of 'X' on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
             END IF. 
     END IF. 
     
@@ -2521,11 +2532,12 @@ DO IF (bpathmod = 1).
          DO IF (jn = 1). 
                     print condnam /title = "JOHNSON-NEYMAN PROCEDURE: b-paths (Mdiff --> Y)" /format = A8. 
                     DO IF (bNumJN(j,1) <> 0). 
-                    print /title = "Moderator value(s) defining Johnson-Neyman significance region(s) and percent of ".
-                    print {t(bJNsoln(j,1:bNumJN(j,1))), t(bpcntabv(j,1:bNumJN(j,1)))} /title "observed data above value:" /clabels = "Value", "% Abv" /format = !decimals /space = 0. 
-                    print bJNres((1+22*(j-1)):(20+bNumJN(j,1)+22*(j-1)),:) /title = "Conditional Effect of M on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
+                        print /title = "Moderator value(s) defining Johnson-Neyman significance region(s) and percent of ".
+                        print {t(bJNsoln(j,1:bNumJN(j,1))), t(bpcntabv(j,1:bNumJN(j,1)))} /title "observed data above value:" /clabels = "Value", "% Abv" /format = !decimals /space = 0. 
+                        print bJNres((1+22*(j-1)):(20+bNumJN(j,1)+22*(j-1)),:) /title = "Conditional Effect of M on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
                     ELSE IF (bNumJN(j,1) = 0). 
-                    print /title = "There are no statistically significant transition points within the observed range of data.". 
+                        print /title = "There are no transition points of statistical significance within the observed range of the moderator.". 
+                        print bJNres((1+22*(j-1)):(20+bNumJN(j,1)+22*(j-1)),:) /title = "Conditional Effect of M on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
                     END IF. 
         END IF.     
     END LOOP. 
@@ -2560,11 +2572,12 @@ DO IF (dpathmod = 1).
         DO IF (jn = 1). 
                     print condnam /title = "JOHNSON-NEYMAN PROCEDURE: d-paths (Mavg --> Y)" /format = A8. 
                     DO IF (dNumJN(j,1) <> 0). 
-                    print /title = "Moderator value(s) defining Johnson-Neyman significance region(s) and percent of ".
-                    print {t(dJNsoln(j,1:dNumJN(j,1))), t(dpcntabv(j,1:dNumJN(j,1)))} /title "observed data above value:" /clabels = "Value", "% Abv" /format = !decimals /space = 0. 
-                    print dJNres((1+22*(j-1)):(20+dNumJN(j,1)+22*(j-1)),:) /title = "Conditional Effect of Mavg on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
+                        print /title = "Moderator value(s) defining Johnson-Neyman significance region(s) and percent of ".
+                        print {t(dJNsoln(j,1:dNumJN(j,1))), t(dpcntabv(j,1:dNumJN(j,1)))} /title "observed data above value:" /clabels = "Value", "% Abv" /format = !decimals /space = 0. 
+                        print dJNres((1+22*(j-1)):(20+dNumJN(j,1)+22*(j-1)),:) /title = "Conditional Effect of Mavg on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
                     ELSE IF (dNumJN(j,1) = 0). 
-                    print /title = "There are no statistically significant transition points within the observed range of data.". 
+                        print /title = "There are no transition points of statistical significance within the observed range of the moderator.". 
+                        print dJNres((1+22*(j-1)):(20+dNumJN(j,1)+22*(j-1)),:) /title = "Conditional Effect of Mavg on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
                     END IF. 
         END IF.                                         
     END LOOP. 
@@ -3029,12 +3042,14 @@ ELSE IF ((Model = 2) OR (Model = 3)).
     DO IF (jn = 1). 
         print /title = "****************************** JOHNSON-NEYMAN PROCEDURE *******************************". 
         DO IF (numJN <> 0). 
-        print /title = "Moderator value(s) defining Johnson-Neyman significance region(s) and percent of ".
-        print {JNsoln, t(pcntabv)} /title "observed data above value:" /clabels = "Value", "% Abv" /format = !decimals /space = 0. 
-        print JNRes /title = "Conditional Effect of 'X' on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
-        print df2 /title = "Degrees of freedom for all conditional effects:".
+            print /title = "Moderator value(s) defining Johnson-Neyman significance region(s) and percent of ".
+            print {JNsoln, t(pcntabv)} /title "observed data above value:" /clabels = "Value", "% Abv" /format = !decimals /space = 0. 
+            print JNRes /title = "Conditional Effect of 'X' on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
+            print df2 /title = "Degrees of freedom for all conditional effects:".
         ELSE IF (numJN = 0). 
-        print /title = "There are no statistically significant transition points within the observed range of data.". 
+            print /title = "There are no transition points of statistical significance within the observed range of the moderator.". 
+            print JNRes /title = "Conditional Effect of 'X' on Y at values of moderator" /cnames = XYgWlabs /format = !decimals.
+            print df2 /title = "Degrees of freedom for all conditional effects:".
         END IF. 
     
     END IF. 
@@ -3229,3 +3244,4 @@ END IF.
 end matrix. 
 !ENDDEFINE. 
 restore. 
+COMMENT BOOKMARK;LINE_NUM=2038;NAME=Beginning of Output;ID=1.
