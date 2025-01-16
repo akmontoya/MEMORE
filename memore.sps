@@ -2036,10 +2036,10 @@ END IF.
 
 END IF. 
 
-print /title = "*********************** MEMORE Procedure for SPSS Version 3.0 ************************".
+print /title = "*********************** MEMORE Procedure for SPSS Version 3.0 ***********************".
 print /title = "                           Written by Amanda Montoya       ".
 print /title = "                    Documentation available at akmontoya.com ".
-print /title = "**************************** ANALYSIS NOTES AND WARNINGS *****************************". 
+print /title = "**************************** ANALYSIS NOTES AND WARNINGS ****************************". 
 LOOP i = 1 to nrow(runnotes).
    DO IF (runnotes(i,1) = 1). 
       PRINT missing /title = "NOTE: Some cases were deleted due to missing data. The number of cases was:". 
@@ -2803,7 +2803,7 @@ DO IF ((model = 1) OR (model > 3)).
          END IF. 
         
         DO IF (plot = 1). 
-            print /title = "************************************ PLOTS *******************************************" .
+            print /title = "**************************************** PLOTS ****************************************" .
             
             print /title = "Data for visualizing conditional effect of X on Y at values of W" /space = 0.
             DO IF (apathmod = 1). 
@@ -3040,7 +3040,7 @@ ELSE IF ((Model = 2) OR (Model = 3)).
     END IF. 
     
     DO IF (jn = 1). 
-        print /title = "****************************** JOHNSON-NEYMAN PROCEDURE *******************************". 
+        print /title = "****************************** JOHNSON-NEYMAN PROCEDURE ******************************". 
         DO IF (numJN <> 0). 
             print /title = "Moderator value(s) defining Johnson-Neyman significance region(s) and percent of ".
             print {JNsoln, t(pcntabv)} /title "observed data above value:" /clabels = "Value", "% Abv" /format = !decimals /space = 0. 
