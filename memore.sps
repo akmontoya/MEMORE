@@ -2030,8 +2030,8 @@ END IF.
 END IF. 
 
 print /title = "*********************** MEMORE Procedure for SPSS Version 3.0 ***********************".
-print /title = "                           Written by Amanda Montoya       ".
-print /title = "                    Documentation available at akmontoya.com ".
+print /title = "                           Written by Amanda Montoya     ".
+print /title = "                    Documentation available at github.com/akmontoya/MEMORE".
 print /title = "**************************** ANALYSIS NOTES AND WARNINGS ****************************". 
 LOOP i = 1 to nrow(runnotes).
    DO IF (runnotes(i,1) = 1). 

@@ -1848,8 +1848,8 @@ end; *4;
 end; *1;
 
 print "************************ MEMORE Procedure for SAS Version 3.0 *************************";
-print "Written by Amanda K. Montoya";
-print "Documentation available at akmontoya.com";
+print "Written by Amanda K. Montoya and Andrew F. Hayes";
+print "Documentation available at github.com/akmontoya/MEMORE";
 
 
 print "*************************** ANALYSIS NOTES AND WARNINGS ******************************";
