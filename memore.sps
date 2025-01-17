@@ -2037,7 +2037,7 @@ LOOP i = 1 to nrow(runnotes).
    DO IF (runnotes(i,1) = 1). 
       PRINT missing /title = "NOTE: Some cases were deleted due to missing data. The number of cases was:". 
   ELSE IF (runnotes(i,1) = 2). 
-      PRINT /title = "ERROR: Two Y variables are needed.".
+      PRINT /title = "ERROR: Exactly two Y variables must be provided in the Y= list.".
     ELSE IF (runnotes(i,1) = 3). 
         PRINT /title = "NOTE: An invalid number of samples was provided.". 
    ELSE IF (runnotes(i,1) = 4). 
@@ -2048,14 +2048,14 @@ LOOP i = 1 to nrow(runnotes).
       PRINT /title = "NOTE: The confidence specified was not between 50 and 99.99. Level of confidence". 
       PRINT {95} /title =  "       was adjusted to:" /space = 0.
    ELSE IF (runnotes(i,1) = 6). 
-      PRINT /title = "ERROR: An even number of variables in M list is required. ". 
-      PRINT /title = "       No more than 20 M variables can be specified." /space = 0. 
+      PRINT /title = "ERROR: An even number of variables in M= list is required. ". 
+      PRINT /title = "       No more than 20 variables are allowed in the M= list." /space = 0. 
    ELSE IF (runnotes(i,1) = 7). 
       PRINT copyname /title = "ERROR: Two of the specified variables are copies. The variable names are:" /format = A8.
    ELSE IF(runnotes(i,1) = 8). 
-      PRINT /title = "ERROR: All specified variables must be unique. No variables may be the same in W, M, and Y". 
+      PRINT /title = "ERROR: All specified variables must be unique. No variables may be the same in W, M, and Y.". 
    ELSE IF (runnotes(i,1) = 9). 
-      PRINT /title = "ERROR: At least one and no more than one W variable can be specified in the W list for Model 4 - 18.".
+      PRINT /title = "ERROR: At least one and no more than one W variable can be specified in the W= list for Model 4 - 18.".
    ELSE IF (runnotes(i,1) = 10). 
       PRINT /title = "NOTE: Contrast command was specified with only 1 pair of mediators.".
       PRINT /title = "       No contrasts calculated." /space = 0.
@@ -2068,22 +2068,22 @@ LOOP i = 1 to nrow(runnotes).
    ELSE IF (runnotes(i,1) = 14). 
       PRINT badboot /title = "NOTE: Some bootstrap samples had to be replaced.  The number of such replacements was:".
    ELSE IF (runnotes(i,1) = 15). 
-      PRINT /title = "ERROR: At least one W variable, and no more than five W variables can be specified in the W list for Models 2 and 3.".
+      PRINT /title = "ERROR: At least one W variable and no more than five W variables can be specified in the W= list for Models 2 and 3.".
    ELSE IF (runnotes(i,1) = 16). 
       PRINT /title = "ERROR: Johnson-Neyman procedure not available for models with more than one moderator. ".
    ELSE IF (runnotes(i,1) = 17). 
       PRINT /title = "ERROR: Johnson-Neyman procedure not available for models with a dichotomous moderator. ".
    ELSE IF (runnotes(i,1) = 18). 
-      PRINT /title = "ERROR: You must specify a value to probe at for each moderator in the w list.".
-      PRINT /title = "       Wmodval lists should be the same length as w list." /space = 0.
+      PRINT /title = "ERROR: You must specify a value to probe at for each moderator in the W= list.".
+      PRINT /title = "       Wmodval= lists should be the same length as W= list." /space = 0.
    ELSE IF (runnotes(i,1) = 19). 
       PRINT /title = "ERROR: Sample size is not large enough. Model is unidentified.".
    ELSE IF (runnotes(i,1) = 20). 
       PRINT /title = "ERROR: Contrasts not available for serial mediation with more than 3 pairs of mediators.".
    ELSE IF (runnotes(i,1) = 21). 
-      PRINT /title = "ERROR: Models 2 through 18 require a variable name in the W argument.".
+      PRINT /title = "ERROR: Models 2 - 18 require a variable name in the W= argument.".
    ELSE IF (runnotes(i,1) = 22). 
-      PRINT /title = "ERROR: Models 1 and 4 - 18 require at least two variable names in the M argument.".
+      PRINT /title = "ERROR: Models 1 and 4 - 18 require at least two variable names in the M= argument.".
    ELSE IF (runnotes(i,1) = 23). 
       PRINT /title = "ERROR: Invalid model number. Valid Models are numbered 1 through 18.".
       print /title = "       Please see documentation for model descriptions github.com/akmontoya/MEMORE".
@@ -2098,7 +2098,7 @@ LOOP i = 1 to nrow(runnotes).
        PRINT /title = "       Try Model = 1, xmint = 0 for a model with no moderation and no XM interaction.".
    ELSE IF (runnotes(i, 1) = 28). 
        PRINT /title = "ERROR: Invalid entry for CENTER option. Please select 0 (no centering), 1 (all moderators centered), ". 
-       PRINT /title = "       or 2 (only continuous moderators centered). No centering conducted.".
+       PRINT /title = "       or 2 (only continuous moderators centered). No centering conducted in analysis below.".
    ELSE IF (runnotes(i, 1) = 29). 
        PRINT /title = "ERROR: Non-invertible design matrix. Results not produced. ". 
        PRINT /title = "       Check that variables have non-zero variance and are not perfectly correlated with each other.".    
