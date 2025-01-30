@@ -2260,9 +2260,9 @@ DO IF (criterr = 0).
     do if (!quote(!seed) <> "random"). 
     print !seed /title = "Seed:". 
     end if. 
+    COMPUTE collab = {"Coef", "SE", "t", "p", "LLCI", "ULCI"}. 
     DO IF ((model = 1) OR (model >= 4)). 
        print {"Ydiff =" , ynames(1,1), ' - ', ynames(1,2)} /title = "**************************************************************************************" /rlabels = "Outcome:" /format = A8.
-       COMPUTE collab = {"Coef", "SE", "t", "p", "LLCI", "ULCI"}. 
         DO IF (anymod=1). 
             print cmodsum /title = "Model Summary" /clabels = "R", "R-sq", "MSE", "F" , "df1" , "df2", "p" /format = !decimals. 
         END IF. 
