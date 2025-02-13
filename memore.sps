@@ -1918,54 +1918,14 @@ DO IF ((model = 2) OR (model = 3)) AND (criterr = 0).
       END IF. 
  
 
-      DO IF (csum(dich(:,1)) > 0) AND (jn = 1). 
+      DO IF ((csum(dich(:,1)) > 0) AND (jn = 1)). 
          COMPUTE jn = 0. 
          COMPUTE runnotes(17,1) = 17. 
       END IF. 
-
+      
       DO IF (jn = 1).  
-         COMPUTE cquad = (bcpvec(1,1)**2) - (tcritb**2)*sebcpmat(1,1). 
-         COMPUTE bquad = 2*bcpvec(1,1)*bcpvec(2,1) - 2*(tcritb**2)*sebcpmat(1,2). 
-         COMPUTE aquad = (bcpvec(2,1)**2) - (tcritb**2)*sebcpmat(2,2). 
-         DO IF ((bquad**2 - 4*cquad*aquad) >= 0). 
-            COMPUTE JNsoln = {(-1*bquad + sqrt(bquad**2 - 4*cquad*aquad))/(2*aquad); (-1*bquad - sqrt(bquad**2 - 4*cquad*aquad))/(2*aquad)}. 
-            COMPUTE Solngrad = grade(JNsoln). 
-            COMPUTE JNsoln(Solngrad,1) = JNsoln(:,1).
-            COMPUTE pcntabv = csum(({moddat, moddat} - make(N, 2, 1)*MDIAG(JNsoln)) > 0)/N*100. 
-            COMPUTE numJN = 2-rsum(pcntabv = 100)-rsum(pcntabv = 0). 
-            COMPUTE toohigh = rsum(pcntabv = 0). 
-            COMPUTE toolow = rsum(pcntabv = 100). 
-            DO IF (toolow = 1). 
-               COMPUTE JNsoln = JNsoln(2,1). 
-               COMPUTE pcntabv = pcntabv(2). 
-            ELSE IF (toohigh = 1). 
-               COMPUTE JNsoln = JNsoln(1,1). 
-               COMPUTE pcntabv = pcntabv(1). 
-            END IF.  
-         ELSE IF ((bquad**2 - 4*cquad*aquad) < 0). 
-            COMPUTE numJN = 0. 
-         END IF.  
-         DO IF (numJN > 0). 
-            COMPUTE JNWcomb = MAKE(20+numJN,2,1).
-            COMPUTE MinW = MMIN(moddat). 
-            COMPUTE MaxW = MMAX(moddat). 
-            COMPUTE Range = MaxW - minW. 
-            LOOP i = 1 TO 20. 
-               COMPUTE JNWcomb(i,2) = MinW+(Range)/19*(i-1). 
-            END LOOP. 
-            COMPUTE JNWcomb(21:(20+numJN),2) = JNsoln. 
-            COMPUTE JNgrad = grade(JNWcomb(:,2)). 
-            COMPUTE JNWcomb(JNgrad,2) = JNWcomb(:,2). 
-            COMPUTE JNres = {JNWcomb(:,2), MAKE(nrow(JNWcomb), 6, -999)}.
-            COMPUTE JNres(:,2) = JNWcomb*bcpvec. 
-            COMPUTE JNres(:,3) = sqrt(diag(JNWcomb*sebcpmat*t(JNWcomb))). 
-            COMPUTE JNres(:,4) = JNres(:,2)/JNres(:,3).  
-            COMPUTE JNres(:,5) = 2*(1-tcdf(abs(JNres(:,4)), df2)).
-            COMPUTE JNres(:,6:7) = {JNres(:,2)-tcritb*JNres(:,3), JNres(:,2)+tcritb*JNres(:,3)}.
-         END IF. 
+          JNprobe coefOne = bcpvec(1,1) /coefTwo = bcpvec(2,1) /seOne = sebcpmat(1,1)) /seTwo = sebcpmat(2,2)/cov = sebcpmat(1,2) /critt = tcritb /dfJN = df2.
       END IF. 
-
- 
    
    /*Probing Effect of Ws on Y*/. 
    COMPUTE prbmsum = MAKE(2,7, -999). 
@@ -2112,6 +2072,10 @@ LOOP i = 1 to nrow(runnotes).
        print /title = "       Either change xmint settings or select a different model number".   
    END IF. 
 END LOOP.
+
+DO IF (ANY(runnotes) = 0). 
+    print /title = "No errors or warnings (^_^)<(YAY!)".
+END IF. 
 
 DO IF (criterr = 0). 
     DO IF ((model = 1) OR (model > 3)). 
@@ -3238,4 +3202,4 @@ END IF.
 end matrix. 
 !ENDDEFINE. 
 restore. 
-COMMENT BOOKMARK;LINE_NUM=2031;NAME=Beginning of Output;ID=1.
+COMMENT BOOKMARK;LINE_NUM=1991;NAME=Beginning of Output;ID=1.
