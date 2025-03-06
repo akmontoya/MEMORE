@@ -588,6 +588,11 @@ DO IF (criterr = 0).
 
        DO IF (anymod = 1). 
            COMPUTE moddat = dataT(:,1:Wcount).
+           dichot modcount = Wcount / dat = moddat. 
+           DO IF ((csum(dich(:,1)) > 0) AND (jn = 1)). 
+                 COMPUTE jn = 0. 
+                 COMPUTE runnotes(17,1) = 17. 
+          END IF.
            DO IF (center > 0). 
                CENTERD centdat = moddat. 
                COMPUTE dataT(:,1:Wcount) = outdat. 
@@ -3202,4 +3207,4 @@ END IF.
 end matrix. 
 !ENDDEFINE. 
 restore. 
-COMMENT BOOKMARK;LINE_NUM=1991;NAME=Beginning of Output;ID=1.
+COMMENT BOOKMARK;LINE_NUM=1996;NAME=Beginning of Output;ID=1.
