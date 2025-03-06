@@ -2185,7 +2185,7 @@ if ((model = 1)|(model >=4)) then; do;
 					mlab = temp1[1,j]||mnamemat[j,1]||" - "||mnamemat[j,2];
 					print mlab [label = "Outcome:"];
 				end; *if(mpairs >1);
-				if (anumJN ^= 0) then; do;
+				if (anumJN[j] ^= 0) then; do;
 					print (t(aJNsoln[j,1:aNumJN[j,1]]) || t(apcntabv[j,1:aNumJN[j,]])) [label = "Moderator value(s) defining Johnson-Neyman significance region(s) and percent of observed data above value:" colname = {"Value" "% Abv"} format = &decimals];
 				end; *if (cnumJN ^= 0);
 				if (anumJN[j,1] = 0) then print "There are no statistically significant transition points within the observed range of data.";
