@@ -2604,7 +2604,7 @@ if ((model = 2) | (model = 3)) then; do; *11;
 	if (quantile = 1) then print "Values for quantitative moderators are 10th, 25th, 50th, 75th, and 90th percentile.";
 	if (quantile = 0) then print "Values for quantitative moderators are the mean and plus/minus one SD from the mean.";
 	print dich;
-	print dich[+,1];
+	print (dich[+,1]);
 	print (dich[+,1] > 0);
 	if (dich[+,1] > 0) then print  "Values for dichotomous moderators are the two values of the moderator.";
 	if (setswv > 0) then; do;
