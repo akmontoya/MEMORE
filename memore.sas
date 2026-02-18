@@ -1701,7 +1701,6 @@ if (((model = 2) | (model = 3))&(criterr=0)) then; do; *4;
 	modres[,5:6] = (modres[,1] - tcritb*modres[,2])|| (modres[,1] + tcritb*modres[,2]);
 
 	*Conditional effects of X on Y at values of W;
-	dich = J(wcount, 3, -999);
 	XYgWres = modcomb || J(dimmc, 6, -999);
 	if (model = 3) then; do;
 		do h = 1 to (wcount - 1);
