@@ -2347,7 +2347,7 @@ if((model=1)|(model>=4)) then; do;
 	 rwnme=" ";
 	if(anymod = 0) then; do; 
 		 print "************************* TOTAL, DIRECT, AND INDIRECT EFFECTS *************************";
-		 cresmat = t(cresmat[1:3]) || dfcpath || t(cresmat[4:6]);
+		 cresmat = t(cresmat[1:3]) || M4df2 || t(cresmat[4:6]);
 		 print cresmat [label = "Total effect of X on Y" colname=collab rowname = rwnme format = &decimals];
 	end; *if(anymod = 0);
 	if(anymod >0) then; do;
