@@ -77,9 +77,12 @@ sobelres = product || sobse || sobelZ ||sobelp;
 
 %macro dichot (modcount=,dat=);
 dich = j(&modcount, 3, -999);
+print dich;
 do q = 1 to &modcount;
     uniqdes = DESIGN(&dat[,q]);
+	print uniqdes;
 	dich[q,1] = (ncol(uniqdes) = 2);
+	print dich;
 	if (dich[q,1] = 1) then;
 	do;
 		dichsort = J(nrow(&dat), 1, -999);
@@ -88,6 +91,7 @@ do q = 1 to &modcount;
 		dich[q,2] = dichsort[1,1]; 
 		dich[q,3] = dichsort[nrow(&dat),1];
 	end;
+	print dich;
 end;
 %mend;
 
