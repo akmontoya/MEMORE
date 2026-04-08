@@ -1,5 +1,5 @@
-* MEMORE for SAS Version 3.0;
-* Copyright 2025 ;
+* MEMORE for SAS Version 3.1;
+* Copyright 2026 ;
 * by Amanda Kay Montoya and Andrew F. Hayes;
 * akmontoya.com;
 * akmontoya@ucla.edu ;
