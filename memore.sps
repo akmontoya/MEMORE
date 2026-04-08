@@ -2087,7 +2087,7 @@ DO IF (criterr = 0).
        DO IF (mc <>1 AND bc = 1). 
           print /title = "Bootstrap confidence interval method used: Bias corrected.".
        ELSE IF (mc <>1 AND bc <>1). 
-          print /title = "Bootstrap confidence interval method used: Percentile bootstrap.".
+          print /title = "Bootstrap confidence interval method used: Percentile.".
        END IF.  
        DO IF (mc = 1). 
        print samples /title = "Number of samples for Monte Carlo condifidence intervals:".
