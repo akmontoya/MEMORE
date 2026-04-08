@@ -2254,7 +2254,7 @@ if(cppthmd = 1) then; do;
 	XYgWcMlb = wnames;
 	if(xmint = 1) then; do;
 		if(mpairs = 1) then bsmpairs = "Mavg";
-		if(mpairs > 0) then bsmpairs = bslabs[1:mpairs];
+		if(mpairs > 1) then bsmpairs = bslabs[1:mpairs];
 		XYgWcMlb = XYgWcMlb||t(bsmpairs);
 	end;*if(xmint = 1);
 	XYgWcMlb = XYgWcMlb||coeflabs;
