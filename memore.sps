@@ -2442,7 +2442,7 @@ DO IF (cppthmd = 1).
         print /title = "     Values for dichotomous moderators are the two values of the moderator.".
     END IF. 
     DO IF (xmint = 1). 
-          print /title = "     Values for mediator averages are the conditional values based on the values of the moderator.".
+          print /title = "     Values for mediator averages (Mavg) are the conditional values based on the values of the moderator.".
     END IF. 
     DO IF (setswv >0).  
          print condnam /title = "Conditional Effect of Focal Predictor on Outcome at requested values of Moderator(s)" /format = A8. 
