@@ -1,6 +1,6 @@
 ﻿* Encoding: UTF-8.
-/* MEMORE for SPSS Version 3.0*/.
-/* Copyright 2025 */.
+/* MEMORE for SPSS Version 3.1*/.
+/* Copyright 2026 */.
 /* by Amanda Kay Montoya */.
 /* akmontoya.com*/.
 /* akmontoya@ucla.edu */.
@@ -1994,7 +1994,7 @@ END IF.
 
 END IF. 
 
-print /title = "*********************** MEMORE Procedure for SPSS Version 3.0 ***********************".
+print /title = "*********************** MEMORE Procedure for SPSS Version 3.1 ***********************".
 print /title = "                           Written by Amanda Montoya     ".
 print /title = "                    Documentation available at github.com/akmontoya/MEMORE".
 print /title = "**************************** ANALYSIS NOTES AND WARNINGS ****************************". 
