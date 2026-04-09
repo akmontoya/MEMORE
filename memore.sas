@@ -2375,7 +2375,7 @@ if((model=1)|(model>=4)) then; do;
 	end; *if(setswv>0);
 	XYgWcMlb = XYgWcMlb[1:(ncol(XYgWcMlb)-3)]// "df"//XYgWcMlb[(ncol(XYgWcMlb)-2):ncol(XYgWcMlb)];
 	XYgWcMrs = XYgWcMrs[,1:(ncol(XYgWcMrs)-3)]|| j(nrow(XYgWcMrs), 1, df2)||XYgWcMrs[,(ncol(XYgWcMrs)-2):ncol(XYgWcMrs)];
-	print XYgWcMrs [label = "Conditional Direct Effect of X on Y at values of the Moderator(s)" colname = XYgWcMlb format = &decimals];
+	print XYgWcMrs [label = "Conditional Direct Effect of X on Y at values of the Moderator(s)" colname = XYgWcMlb rowname = " " format = &decimals];
 	if (quantile = 1) then print "Values for quantitative moderators are 10th, 25th, 50th, 75th, and 90th percentile.";
 	if (quantile = 0) then print "Values for quantitative moderators are the mean and plus/minus one SD from the mean.";
 	if (dich[+,1] > 0) then print  "Values for dichotomous moderators are the two values of the moderator.";
