@@ -2095,15 +2095,15 @@ DO IF (criterr = 0).
        print samples /title = "Number of bootstrap samples for bootstrap confidence intervals:".
        END IF. 
        DO IF (xmint = 1). 
-       COMPUTE centvars = MAKE(Mpairs, 6,0). 
-          LOOP j = 1 TO Mpairs. 
-             COMPUTE centvars(j,:) = { '(', mnamemat(j,1), ' + ', mnamemat(j,2), ')', '/2' }. 
-          END LOOP. 
-          print centvars /title = "The following variables were mean centered prior to analysis:" /format = A8. 
+           COMPUTE centvars = MAKE(Mpairs, 6,0). 
+              LOOP j = 1 TO Mpairs. 
+                 COMPUTE centvars(j,:) = { '(', mnamemat(j,1), ' + ', mnamemat(j,2), ')', '/2' }. 
+              END LOOP. 
+              print centvars /title = "The following variables were mean centered prior to analysis:" /format = A8. 
        END IF. 
-       print conf /title = "Level of confidence for all confidence intervals in output:" /format = F10.2. 
+     END IF.     *((model = 1) OR (model > 3)).
        
-           DO IF ((model <> 1) AND (center > 0)). 
+     DO IF ((model <> 1) AND (center > 0)). 
             DICHOT modcount = Wcount /dat = moddat. 
             DO IF (Wcount-(center=2)*csum(dich(:,1)) > 0). 
                 COMPUTE centvars = MAKE(1, Wcount-(center=2)*csum(dich(:,1)), -999). 
@@ -2119,7 +2119,7 @@ DO IF (criterr = 0).
                 print /title = "No variables were mean centered prior to analysis". 
             END IF. 
         END IF. 
-    END IF. 
+        print conf /title = "Level of confidence for all confidence intervals in output:" /format = F10.2.
 END IF. 
 
 
