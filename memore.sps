@@ -2101,7 +2101,8 @@ DO IF (criterr = 0).
               END LOOP. 
               print centvars /title = "The following variables were mean centered prior to analysis:" /format = A8. 
        END IF. 
-     END IF.     *((model = 1) OR (model > 3)).
+     END IF.    
+     /*((model = 1) OR (model > 3))*/.
        
      DO IF ((model <> 1) AND (center > 0)). 
             DICHOT modcount = Wcount /dat = moddat. 
@@ -2118,10 +2119,10 @@ DO IF (criterr = 0).
             ELSE. 
                 print /title = "No variables were mean centered prior to analysis". 
             END IF. 
-        END IF. 
+      END IF. 
+      /* ((model <> 1) AND (center > 0 ))*/.
         print conf /title = "Level of confidence for all confidence intervals in output:" /format = F10.2.
-END IF. 
-
+END IF.       
 
 print /title = "**************************************************************************************".
 
