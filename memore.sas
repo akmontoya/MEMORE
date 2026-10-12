@@ -2104,6 +2104,7 @@ if ((model = 1)|(model >=4)) then; do;
 	end; *if (dich[+,1] ^= Wcount);
 	if (dich[+,1] > 0) then print  "Values for dichotomous moderators are the two values of the moderator.";
 	if (setswv > 0) then; do;
+		print condnam [Label = "Conditional Effect of Focal Predictor on Outcome at requested values of moderator(s)"];		
 		print XYgWvres [label = "Conditional effect of Focal Predictor on Outcome at requested values of moderator(s)" colname = XYgWlabs rowname = " " format = &decimals];
 	end; *if (setswv > 0);
 	print M4df2 [label = "Degrees of freedom for all conditional effects:"];
